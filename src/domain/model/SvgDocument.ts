@@ -81,13 +81,11 @@ export class SvgDocument {
   }
 
   public remove(shape: Shape): void {
-    if (this.isRootChild(shape) || shape.parent !== null) {
-      const parent = this.parentOf(shape);
-      parent.removeChild(shape);
-      this.unindexSubtree(shape);
-      return;
+    if (shape.parent === null) {
+      throw new Error(`shape ${shape.id} is not attached`);
     }
-    throw new Error(`shape ${shape.id} is not attached`);
+    shape.parent.removeChild(shape);
+    this.unindexSubtree(shape);
   }
 
   /** Moves an already registered shape/subtree to another container. */
