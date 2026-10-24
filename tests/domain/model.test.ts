@@ -87,6 +87,25 @@ describe("shape model", () => {
     ]);
   });
 
+  it("restores canvas viewBox and root attributes with the memento", () => {
+    const document = new SvgDocument(800, 400);
+    document.applyRootMetadata("10 20 400 200", [
+      ["preserveAspectRatio", "xMidYMid meet"],
+      ["style", "background:#eee"]
+    ]);
+    const snapshot = document.createMemento();
+    document.resize(900, 500);
+    expect(document.viewBox).toBe("0 0 900 500");
+    document.restore(snapshot);
+    expect(document.width).toBe(800);
+    expect(document.height).toBe(400);
+    expect(document.viewBox).toBe("10 20 400 200");
+    expect(document.rootExtraAttributes).toEqual([
+      ["preserveAspectRatio", "xMidYMid meet"],
+      ["style", "background:#eee"]
+    ]);
+  });
+
   it("applies typed attribute validation", () => {
     const rect = new RectShape("r1", 0, 0, 10, 10);
     rect.setAttribute("fill", "rebeccapurple");

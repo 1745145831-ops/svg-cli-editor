@@ -64,6 +64,51 @@ describe("editing commands", () => {
     );
   });
 
+  it("groups selected shapes in their existing document order", () => {
+    harness.success("create rect a 0 0 10 10");
+    harness.success("create rect b 20 0 10 10");
+    harness.success("create rect c 40 0 10 10");
+    harness.success("group g c a");
+
+    const document = documentOf(harness);
+    expect(document.rootChildren.map((shape) => shape.id)).toEqual(["g", "b"]);
+    expect((document.find("g") as GroupShape).children.map((shape) => shape.id)).toEqual([
+      "a",
+      "c"
+    ]);
+  });
+
+  it("preserves inherited group state when ungrouping", () => {
+    const filePath = harness.writeFile(
+      "ungroup-transform.svg",
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">
+        <g id="outer">
+          <g id="inner" transform="translate(100,50)" fill="red" stroke="blue" xmlns:foo="urn:example:foo">
+            <rect id="r1" x="0" y="0" width="10" height="10"/>
+            <circle id="c1" cx="5" cy="5" r="2" foo:bar="value"/>
+          </g>
+        </g>
+      </svg>`
+    );
+    harness.success(`read "${filePath}"`);
+    harness.success("ungroup inner");
+    const document = documentOf(harness);
+    expect(document.find("inner")).toBeUndefined();
+    expect(document.find("r1")?.getAttributeValue("fill")).toBe("red");
+    expect(document.find("r1")?.getAttributeValue("stroke")).toBe("blue");
+    expect(document.find("r1")?.getExtraAttributeValue("transform")).toBe(
+      "translate(100,50)"
+    );
+    expect(document.find("c1")?.getExtraAttributeValue("xmlns:foo")).toBe(
+      "urn:example:foo"
+    );
+    expect(harness.success("show r1").message).toContain("transform=translate(100,50)");
+
+    const savedPath = harness.path("ungroup-transform-out.svg");
+    harness.success(`save "${savedPath}"`);
+    expect(harness.run(`read "${savedPath}"`).error).toBeUndefined();
+  });
+
   it("moves and scales groups by modifying descendants, then undoes exactly", () => {
     harness.success("create g node1");
     harness.success("create rect r1 10 20 30 40 red in node1");

@@ -190,6 +190,71 @@ describe("SVG import/export", () => {
     );
   });
 
+  it("preserves root viewBox/metadata and namespaced attributes across round trips", () => {
+    const source = `<svg xmlns="http://www.w3.org/2000/svg"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        width="800" height="400" viewBox="10 20 400 200"
+        preserveAspectRatio="xMidYMid meet" style="background:#eee">
+      <g id="g1" xmlns:foo="urn:example:foo">
+        <rect id="r1" x="0" y="0" width="10" height="10"
+          inkscape:label="Layer 1" foo:bar="value"/>
+      </g>
+    </svg>`;
+    harness.success(`read "${harness.writeFile("metadata-root.svg", source)}"`);
+    const savedPath = harness.path("metadata-out.svg");
+    harness.success(`save "${savedPath}"`);
+    const written = readFileSync(savedPath, "utf8");
+    expect(written).toContain('viewBox="10 20 400 200"');
+    expect(written).toContain('preserveAspectRatio="xMidYMid meet"');
+    expect(written).toContain('style="background:#eee"');
+    expect(written).toContain('xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"');
+    expect(written).toContain('inkscape:label="Layer 1"');
+    expect(written).toContain('xmlns:foo="urn:example:foo"');
+    expect(written).toContain('foo:bar="value"');
+
+    harness.success(`read "${savedPath}"`);
+    expect(harness.session.requireDocument().find("r1")).toBeDefined();
+  });
+
+  it("normalizes absolute SVG length units in shape geometry and stroke-width", () => {
+    const source = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 300">
+      <rect id="r1" x="1in" y="0" width="10px" height="5mm" stroke-width="2pt"/>
+    </svg>`;
+    harness.success(`read "${harness.writeFile("units.svg", source)}"`);
+    const document = harness.session.requireDocument();
+    expect(document.width).toBe(400);
+    expect(document.height).toBe(300);
+    expect(document.find("r1")?.geometryEntries).toEqual([
+      ["x", 96],
+      ["y", 0],
+      ["width", 10],
+      ["height", 5 * (96 / 25.4)]
+    ]);
+    expect(document.find("r1")?.getAttributeValue("stroke-width")).toBe(
+      "2.66666666666667"
+    );
+    const savedPath = harness.path("units-out.svg");
+    harness.success(`save "${savedPath}"`);
+    expect(readFileSync(savedPath, "utf8")).toContain('stroke-width="2.66666666666667"');
+  });
+
+  it("preserves text whitespace exactly", () => {
+    const source = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <text id="t1" x="1" y="2">  padded text  </text>
+    </svg>`;
+    harness.success(`read "${harness.writeFile("spaces.svg", source)}"`);
+    expect(harness.session.requireDocument().find("t1")?.getAttributeValue("text")).toBe(
+      "  padded text  "
+    );
+    const savedPath = harness.path("spaces-out.svg");
+    harness.success(`save "${savedPath}"`);
+    expect(readFileSync(savedPath, "utf8")).toContain(">  padded text  </text>");
+    harness.success(`read "${savedPath}"`);
+    expect(harness.session.requireDocument().find("t1")?.getAttributeValue("text")).toBe(
+      "  padded text  "
+    );
+  });
+
   it("reports missing/unreadable files with the required message", () => {
     expect(harness.run('read "not-there.svg"').error).toBe(
       "cannot read file: not-there.svg"
