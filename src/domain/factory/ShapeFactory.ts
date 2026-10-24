@@ -7,6 +7,7 @@ import { LineShape } from "../model/LineShape.js";
 import { RectShape } from "../model/RectShape.js";
 import type { Shape } from "../model/Shape.js";
 import { TextShape } from "../model/TextShape.js";
+import { SvgLength } from "./SvgLength.js";
 
 const SVG_COMMON_ATTRIBUTES = new Set(["fill", "stroke", "stroke-width"]);
 
@@ -175,7 +176,14 @@ export class ShapeFactory {
     for (const name of SVG_COMMON_ATTRIBUTES) {
       const value = attributes.get(name);
       if (value !== undefined) {
-        shape.setPresentationAttribute(name, value);
+        if (name === "stroke-width") {
+          shape.setPresentationAttribute(
+            name,
+            NumberFormat.format(SvgLength.toUserUnits(value, name))
+          );
+        } else {
+          shape.setPresentationAttribute(name, value);
+        }
       }
     }
     const known = new Set<string>([
@@ -214,11 +222,11 @@ export class ShapeFactory {
     fallback: number
   ): number {
     const raw = attributes.get(name);
-    return raw === undefined ? fallback : NumberFormat.parse(raw, name);
+    return raw === undefined ? fallback : SvgLength.toUserUnits(raw, name);
   }
 
   private svgDimension(attributes: ReadonlyMap<string, string>, name: string): number {
     const raw = attributes.get(name);
-    return raw === undefined ? 0 : NumberFormat.parseNonNegative(raw, name);
+    return raw === undefined ? 0 : SvgLength.toUserUnits(raw, name);
   }
 }
