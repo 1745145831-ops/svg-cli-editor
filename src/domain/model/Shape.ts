@@ -94,6 +94,10 @@ export abstract class Shape {
     return [...this.extraAttributes.entries()];
   }
 
+  public getExtraAttributeValue(name: string): string | undefined {
+    return this.extraAttributes.get(name);
+  }
+
   public getAttributeValue(name: string): string | undefined {
     const presentationValue = this.presentation.get(name);
     if (presentationValue !== undefined) {

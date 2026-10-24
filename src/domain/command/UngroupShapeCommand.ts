@@ -1,8 +1,25 @@
 import { UserError } from "../../shared/UserError.js";
 import { GroupShape } from "../model/GroupShape.js";
+import type { Shape } from "../model/Shape.js";
 import type { SvgDocument } from "../model/SvgDocument.js";
 import type { CommandResult } from "./CommandResult.js";
 import { EditCommand } from "./EditCommand.js";
+
+const INHERITED_EXTRA_ATTRIBUTES = [
+  "font-size",
+  "font-family",
+  "font-weight",
+  "font-style",
+  "text-anchor",
+  "dominant-baseline",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-dasharray",
+  "fill-opacity",
+  "stroke-opacity",
+  "color",
+  "visibility"
+] as const;
 
 export class UngroupShapeCommand extends EditCommand {
   private groupLabel = "";
@@ -37,6 +54,7 @@ export class UngroupShapeCommand extends EditCommand {
     // would be rejected as a duplicate.
     document.remove(group);
     children.forEach((child, offset) => {
+      this.transferInheritedState(group, child);
       group.removeChild(child);
       document.attach(child, parent, insertionIndex + offset);
     });
@@ -45,5 +63,37 @@ export class UngroupShapeCommand extends EditCommand {
 
   protected override buildUndoMessage(): string {
     return `${this.groupLabel} regrouped with ${this.childCount} children`;
+  }
+
+  /**
+   * A group can carry presentation attributes and a transform. When the group
+   * disappears, copy the inheritable values to direct children and compose the
+   * transform string so the promoted subtree keeps its rendered placement.
+   */
+  private transferInheritedState(group: GroupShape, child: Shape): void {
+    for (const [name, value] of group.presentationEntries) {
+      if (child.getAttributeValue(name) === undefined) {
+        child.setPresentationAttribute(name, value);
+      }
+    }
+    for (const name of INHERITED_EXTRA_ATTRIBUTES) {
+      const value = group.getExtraAttributeValue(name);
+      if (value !== undefined && child.getExtraAttributeValue(name) === undefined) {
+        child.setExtraAttribute(name, value);
+      }
+    }
+    for (const [name, value] of group.extraAttributeEntries) {
+      if (name.startsWith("xmlns:") && child.getExtraAttributeValue(name) === undefined) {
+        child.setExtraAttribute(name, value);
+      }
+    }
+    const groupTransform = group.getExtraAttributeValue("transform");
+    if (groupTransform !== undefined) {
+      const childTransform = child.getExtraAttributeValue("transform");
+      child.setExtraAttribute(
+        "transform",
+        childTransform === undefined ? groupTransform : `${groupTransform} ${childTransform}`
+      );
+    }
   }
 }
