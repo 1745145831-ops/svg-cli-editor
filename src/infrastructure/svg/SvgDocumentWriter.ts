@@ -10,10 +10,13 @@ export class SvgDocumentWriter {
   public serialize(document: SvgDocument): string {
     const width = NumberFormat.format(document.width);
     const height = NumberFormat.format(document.height);
+    const rootExtras = document.rootExtraAttributes
+      .map(([name, value]) => ` ${name}="${this.escapeAttribute(value)}"`)
+      .join("");
     const lines: string[] = [
       '<?xml version="1.0" encoding="UTF-8"?>',
       `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" ` +
-        `viewBox="0 0 ${width} ${height}">`
+        `viewBox="${this.escapeAttribute(document.viewBox)}"${rootExtras}>`
     ];
     for (const shape of document.rootChildren) {
       lines.push(this.renderShape(shape, 1));

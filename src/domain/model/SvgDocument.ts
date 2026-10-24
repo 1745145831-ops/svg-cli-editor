@@ -2,7 +2,7 @@ import { NumberFormat } from "../../shared/NumberFormat.js";
 import { UserError } from "../../shared/UserError.js";
 import { DocumentMemento } from "./DocumentMemento.js";
 import { GroupShape } from "./GroupShape.js";
-import type { Shape } from "./Shape.js";
+import type { Shape, SvgAttributeEntry } from "./Shape.js";
 
 const ROOT_ID = "__document_root__";
 
@@ -13,7 +13,9 @@ const ROOT_ID = "__document_root__";
 export class SvgDocument {
   private widthValue: number;
   private heightValue: number;
+  private viewBoxValue: string;
   private rootValue: GroupShape;
+  private readonly rootAttributes = new Map<string, string>();
   private readonly shapesById = new Map<string, Shape>();
 
   public constructor(width: number, height: number) {
@@ -21,6 +23,7 @@ export class SvgDocument {
     NumberFormat.assertPositive(height, "height");
     this.widthValue = width;
     this.heightValue = height;
+    this.viewBoxValue = `0 0 ${NumberFormat.format(width)} ${NumberFormat.format(height)}`;
     this.rootValue = new GroupShape(ROOT_ID);
   }
 
@@ -32,8 +35,38 @@ export class SvgDocument {
     return this.heightValue;
   }
 
+  public get viewBox(): string {
+    return this.viewBoxValue;
+  }
+
+  public get rootExtraAttributes(): readonly SvgAttributeEntry[] {
+    return [...this.rootAttributes.entries()];
+  }
+
   public get rootChildren(): readonly Shape[] {
     return this.rootValue.children;
+  }
+
+  /**
+   * Applies metadata read from an external <svg> root. `canvas` resizing later
+   * replaces the viewBox but keeps non-geometric root attributes.
+   */
+  public applyRootMetadata(
+    viewBox: string,
+    extraAttributes: readonly SvgAttributeEntry[]
+  ): void {
+    const trimmed = viewBox.trim();
+    if (trimmed.length === 0) {
+      throw new UserError("viewBox must not be empty");
+    }
+    this.viewBoxValue = trimmed;
+    this.rootAttributes.clear();
+    for (const [name, value] of extraAttributes) {
+      if (["width", "height", "viewBox", "xmlns"].includes(name)) {
+        continue;
+      }
+      this.rootAttributes.set(name, value);
+    }
   }
 
   public find(id: string): Shape | undefined {
@@ -64,6 +97,7 @@ export class SvgDocument {
     NumberFormat.assertPositive(height, "height");
     this.widthValue = width;
     this.heightValue = height;
+    this.viewBoxValue = `0 0 ${NumberFormat.format(width)} ${NumberFormat.format(height)}`;
   }
 
   /**
@@ -102,6 +136,8 @@ export class SvgDocument {
     return new DocumentMemento(
       this.widthValue,
       this.heightValue,
+      this.viewBoxValue,
+      new Map(this.rootAttributes),
       this.rootValue.cloneShape()
     );
   }
@@ -109,11 +145,33 @@ export class SvgDocument {
   public restore(memento: DocumentMemento): void {
     this.widthValue = memento.width;
     this.heightValue = memento.height;
+    this.viewBoxValue = memento.viewBox;
+    this.rootAttributes.clear();
+    for (const [name, value] of memento.rootExtraAttributes) {
+      this.rootAttributes.set(name, value);
+    }
     this.rootValue = memento.createRootClone();
     this.shapesById.clear();
     for (const child of this.rootValue.children) {
       this.indexSubtree(child);
     }
+  }
+
+  /** Pre-order list used for stable document-order decisions (e.g. group). */
+  public documentOrder(): readonly Shape[] {
+    const result: Shape[] = [];
+    const visit = (shape: Shape): void => {
+      result.push(shape);
+      if (shape instanceof GroupShape) {
+        for (const child of shape.children) {
+          visit(child);
+        }
+      }
+    };
+    for (const child of this.rootValue.children) {
+      visit(child);
+    }
+    return result;
   }
 
   private assertSubtreeIdsFree(shape: Shape): void {

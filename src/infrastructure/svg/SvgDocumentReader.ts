@@ -3,8 +3,9 @@ import { DOMParser } from "@xmldom/xmldom";
 import type { Element } from "@xmldom/xmldom";
 import type { SvgReadResult } from "../../application/gateway/SvgReadResult.js";
 import type { ShapeFactory } from "../../domain/factory/ShapeFactory.js";
+import { SvgLength } from "../../domain/factory/SvgLength.js";
 import { GroupShape } from "../../domain/model/GroupShape.js";
-import { Shape } from "../../domain/model/Shape.js";
+import { Shape, type SvgAttributeEntry } from "../../domain/model/Shape.js";
 import { SvgDocument } from "../../domain/model/SvgDocument.js";
 import { NumberFormat } from "../../shared/NumberFormat.js";
 import { UserError } from "../../shared/UserError.js";
@@ -61,12 +62,16 @@ export class SvgDocumentReader {
       throw new UserError("root element must be <svg>");
     }
 
-    const viewBox = this.viewBoxValues(root);
-    const width = this.readLength(root.getAttribute("width")) ?? viewBox?.[2] ?? 800;
-    const height = this.readLength(root.getAttribute("height")) ?? viewBox?.[3] ?? 600;
+    const viewBoxRaw = root.getAttribute("viewBox");
+    const viewBox = this.viewBoxValues(viewBoxRaw);
+    const width = this.readCanvasLength(root.getAttribute("width")) ?? viewBox?.[2] ?? 800;
+    const height = this.readCanvasLength(root.getAttribute("height")) ?? viewBox?.[3] ?? 600;
     const warnings: string[] = [];
     const ids = this.assignIds(root, warnings);
     const document = new SvgDocument(width, height);
+    const normalizedViewBox = viewBoxRaw?.trim() ??
+      `0 0 ${NumberFormat.format(width)} ${NumberFormat.format(height)}`;
+    document.applyRootMetadata(normalizedViewBox, this.readRootAttributes(root));
 
     for (const child of this.elementChildren(root)) {
       const shape = this.convertElement(child, ids);
@@ -94,7 +99,7 @@ export class SvgDocumentReader {
     }
     const attributes = this.readAttributes(element);
     const isText = tag === "text";
-    const textContent = isText ? (element.textContent ?? "").trim() : "";
+    const textContent = isText ? (element.textContent ?? "") : "";
     const shape = this.shapeFactory.createFromSvgElement(tag, id, attributes, textContent);
 
     if (shape instanceof GroupShape) {
@@ -185,12 +190,28 @@ export class SvgDocumentReader {
         continue;
       }
       const name = attribute.name;
-      if (name === "xmlns" || name.startsWith("xmlns:")) {
+      if (name === "xmlns") {
         continue;
       }
       attributes.set(name, attribute.value);
     }
     return attributes;
+  }
+
+  private readRootAttributes(root: Element): readonly SvgAttributeEntry[] {
+    const result: SvgAttributeEntry[] = [];
+    for (let index = 0; index < root.attributes.length; index += 1) {
+      const attribute = root.attributes.item(index);
+      if (attribute === null) {
+        continue;
+      }
+      const name = attribute.name;
+      if (["width", "height", "viewBox", "xmlns"].includes(name)) {
+        continue;
+      }
+      result.push([name, attribute.value]);
+    }
+    return result;
   }
 
   private elementChildren(parent: Element): Element[] {
@@ -211,16 +232,18 @@ export class SvgDocumentReader {
     return parts[parts.length - 1] ?? raw;
   }
 
-  private readLength(raw: string | null): number | null {
-    if (raw === null || raw.trim().length === 0) {
+  private readCanvasLength(raw: string | null): number | null {
+    if (raw === null || raw.trim().length === 0 || raw.trim().endsWith("%")) {
       return null;
     }
-    const normalized = raw.trim().replace(/px$/iu, "");
-    return NumberFormat.parsePositive(normalized, "canvas size");
+    const value = SvgLength.toUserUnits(raw, "canvas size");
+    if (value <= 0) {
+      throw new UserError("canvas size must be positive");
+    }
+    return value;
   }
 
-  private viewBoxValues(root: Element): readonly number[] | null {
-    const raw = root.getAttribute("viewBox");
+  private viewBoxValues(raw: string | null): readonly number[] | null {
     if (raw === null) {
       return null;
     }
