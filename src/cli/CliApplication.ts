@@ -48,7 +48,7 @@ export class CliApplication {
       }
       const result = this.dispatcher.dispatch(command, this.context);
       for (const warning of result.warnings ?? []) {
-        this.write(`warning: ${warning}\n`);
+        this.write(`warning: ${this.singleLine(warning)}\n`);
       }
       if (result.message.length > 0) {
         this.write(`${result.message}\n`);
@@ -56,13 +56,17 @@ export class CliApplication {
       return result.exit === true;
     } catch (error) {
       if (error instanceof UserError) {
-        this.write(`error: ${error.message}\n`);
+        this.write(`error: ${this.singleLine(error.message)}\n`);
       } else {
         const message = error instanceof Error ? error.message : String(error);
-        this.write(`error: internal error: ${message}\n`);
+        this.write(`error: internal error: ${this.singleLine(message)}\n`);
       }
       return false;
     }
+  }
+
+  private singleLine(text: string): string {
+    return text.replace(/\s*\r?\n\s*/gu, " ");
   }
 
   private write(text: string): void {
