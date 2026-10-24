@@ -49,6 +49,12 @@ export class GroupShapesCommand extends EditCommand {
         }
       }
     }
+
+    const order = new Map<Shape, number>();
+    document.documentOrder().forEach((shape, index) => {
+      order.set(shape, index);
+    });
+    shapes.sort((left, right) => (order.get(left) ?? 0) - (order.get(right) ?? 0));
     this.selectedShapes = shapes;
   }
 
