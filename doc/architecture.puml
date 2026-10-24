@@ -1,0 +1,90 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "Microsoft YaHei"
+skinparam arrowColor #5A6B7B
+skinparam nodesep 35
+skinparam ranksep 45
+hide stereotype
+top to bottom direction
+
+package "src/cli" as cli {
+  [main / composition root] as MAIN
+  [CliApplication] as CLI_APP
+}
+
+package "src/application" as app {
+  [CommandParser + LineTokenizer] as PARSER
+  [CommandDispatcher] as DISPATCHER
+  [Command handlers] as HANDLERS
+  [EditorSession] as SESSION
+  [TreeRenderer / DetailsFormatter] as DISPLAY
+  interface "SvgDocumentGateway\n<<port>>" as GATEWAY
+}
+
+package "src/domain" as domain {
+  package "model" {
+    [SvgDocument\n(aggregate root)] as DOCUMENT
+    [Shape hierarchy\n+ GroupShape] as SHAPES
+    [DocumentMemento] as MEMENTO
+  }
+  package "command" {
+    [EditorCommand\n<<interface>>] as COMMAND
+    [EditCommand\n<<template>>] as EDIT_COMMAND
+    [Concrete edit commands] as CONCRETE
+    [UndoManager] as UNDO
+  }
+  [ShapeFactory\n(single type dispatch)] as FACTORY
+}
+
+package "src/infrastructure/svg" as infra {
+  [FileSvgGateway\n(adapter)] as FILE_GATEWAY
+  [SvgDocumentReader] as READER
+  [SvgDocumentWriter] as WRITER
+}
+
+database "SVG files" as FILES
+
+MAIN --> CLI_APP
+MAIN --> DISPATCHER
+MAIN --> FILE_GATEWAY
+
+CLI_APP --> PARSER
+CLI_APP --> DISPATCHER
+DISPATCHER --> HANDLERS
+HANDLERS --> SESSION
+HANDLERS --> FACTORY
+HANDLERS --> DISPLAY
+HANDLERS ..> GATEWAY
+
+SESSION --> COMMAND
+SESSION --> UNDO
+COMMAND <|.. EDIT_COMMAND
+EDIT_COMMAND <|-- CONCRETE
+EDIT_COMMAND --> MEMENTO
+CONCRETE --> DOCUMENT
+UNDO --> COMMAND
+
+DOCUMENT *-- SHAPES
+DISPLAY --> DOCUMENT
+
+FILE_GATEWAY ..|> GATEWAY
+FILE_GATEWAY --> READER
+FILE_GATEWAY --> WRITER
+FILE_GATEWAY --> FILES
+READER --> FACTORY
+READER --> DOCUMENT
+WRITER --> DOCUMENT
+
+note bottom of FACTORY
+  The only type-name -> class dispatch point.
+  Planned replacement: ShapeProvider registry.
+end note
+
+note right of DISPATCHER
+  The only command-name -> handler
+  dispatch point.
+end note
+
+@enduml
