@@ -14,7 +14,9 @@ export class CanvasCommandHandler implements CommandHandler {
       };
     }
     const width = NumberFormat.parsePositive(args[0] ?? "", "width");
-    const height = NumberFormat.parsePositive(args[1] ?? "", "height");
+    const height = args.length === 2
+      ? NumberFormat.parsePositive(args[1] ?? "", "height")
+      : document.height;
     context.session.resizeDocument(width, height);
     return {
       message: `canvas resized to ${NumberFormat.format(width)}x${NumberFormat.format(height)}`
