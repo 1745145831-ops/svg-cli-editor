@@ -50,7 +50,7 @@ PowerShell 的管道编码可能影响中文，Windows 上也可以直接逐行�
 ## 质量检查
 
 ```bash
-npm run check        # typecheck + 架构依赖检查 + 49 个测试
+npm run check        # typecheck + 架构依赖检查 + 59 个测试
 npm run test:coverage
 npm run build
 npm start            # 运行编译后的 dist/cli/main.js

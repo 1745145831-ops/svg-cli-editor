@@ -39,14 +39,14 @@
 |---|---|---|
 | `src/domain/model/` | 图形实体、组合树、文档聚合根、快照。几何数据与结构变更规则都在这里 | `Shape`、六个叶子类、`GroupShape`、`SvgDocument`、`DocumentMemento` |
 | `src/domain/command/` | 编辑命令与历史栈。命令只依赖文档模型 | `EditorCommand`、`EditCommand`、九类具体命令、`UndoManager` |
-| `src/domain/factory/` | **唯一的图形类型名分派点**，同时服务 CLI 的 `create` 和 SVG 导入 | `ShapeFactory` |
+| `src/domain/factory/` | **唯一的图形类型名分派点**，同时服务 CLI 的 `create` 和 SVG 导入；另含 SVG 长度单位归一化 | `ShapeFactory`、`SvgLength` |
 | `src/application/` | 命令解析/分发、会话状态、每个命令的处理器、展示格式、持久化端口 | `CommandParser`、`CommandDispatcher`、`EditorSession`、`*CommandHandler`、`SvgDocumentGateway` |
 | `src/application/display/` | `tree` / `show` / `help` 的纯展示逻辑 | `TreeRenderer`、`ShapeDetailsFormatter`、`HelpText` |
 | `src/infrastructure/svg/` | SVG 文件读取、XML DOM 解析、确定性序列化、原子写入 | `SvgDocumentReader`、`SvgDocumentWriter`、`FileSvgGateway` |
 | `src/cli/` | 进程入口、REPL、提示符、错误前缀和组合根 | `CliApplication`、`main` |
 | `src/shared/` | 无业务依赖的基础能力 | `UserError`、`NumberFormat`、`AttributeDisplay` |
 | `scripts/` | 可执行的架构约束检查 | `check-architecture.mjs` |
-| `tests/` | 单元、命令集成、CLI、IO 回归测试 | 7 个测试文件 |
+| `tests/` | 单元、命令集成、CLI、IO 回归测试 | 8 个测试文件 |
 
 ### 1.3 组件图
 
@@ -81,7 +81,7 @@ validate() → 创建 before 快照 → apply() → 创建 after 快照
 
 - 校验全部在修改前完成；`apply()` 抛异常时用 `before` 恢复，保证“命令失败不改变状态”；
 - `undo()` 恢复 `before`，`redo()` 恢复 `after`；
-- `DocumentMemento` 保存画布尺寸和整棵形状树的深拷贝，且每次恢复都会再次 clone，因此同一快照可以被反复 undo/redo 而不被污染。
+- `DocumentMemento` 保存画布尺寸、viewBox、根级属性和整棵形状树的深拷贝，且每次恢复都会再次 clone，因此同一快照可以被反复 undo/redo 而不被污染。
 
 选择快照而不是为每个命令手写逆操作，是因为 group/ungroup/delete/addto 会同时改变父容器、兄弟顺序和 id 索引，手写逆操作极易漏状态。代价是每条历史记录占用 O(n) 内存；本阶段文档规模小，这个代价可接受。若未来文档变大，可只替换 `EditCommand` 的存储策略（如命令逆向或 structural diff），上层不变。
 
@@ -135,7 +135,7 @@ validate() → 创建 before 快照 → apply() → 创建 after 快照
 | # | 未来最可能的变化 | 当前预留 / 处理 | 为什么现在不做更多 |
 |---|---|---|---|
 | 1 | 新增图形类型（`box`、`polygon`、插件） | `ShapeFactory` 是唯一分派点，创建和导入共用；接口预留了 `isSupportedSvgTag` 等判断 | 本阶段明确不要求插件；提前定义 `ShapeProvider` 会变成无使用者的抽象 |
-| 2 | 更复杂的 SVG（transform、CSS、命名空间、path） | 读写隔离在 `infrastructure/svg`；未知属性原样保存在 `Shape.extraAttributeEntries`，round-trip 不丢 | 完整 transform 语义需要仿射矩阵/渲染等价，超出 Phase 1；当前保留数据但不解释 |
+| 2 | 更复杂的 SVG（transform、CSS、命名空间、path） | 读写隔离在 `infrastructure/svg`；根 `viewBox`/`preserveAspectRatio`/命名空间声明会 round-trip，未知属性保存在 `Shape.extraAttributeEntries`，shape 的 px/pt/mm 等绝对长度会归一化 | 完整 transform 语义需要仿射矩阵/渲染等价，超出 Phase 1；当前保留 transform 字符串但不解释 |
 | 3 | 撤销内存/粒度变化 | `EditorCommand` 与 `UndoManager` 解耦；Memento 可替换为 diff/逆命令 | 当前规模下整树快照最可靠；提前优化会增加错误面 |
 | 4 | 从 id 寻址改为结构路径（XPath 风格） | 所有命令只调用 `SvgDocument.find(id)`，寻址集中在聚合根 | 规范明确本阶段只要求 id；DOM 路径解析现在没有收益 |
 | 5 | 新增 Web/Agent 通道 | `CliApplication` 只负责 I/O、prompt、错误前缀；会话、命令、展示逻辑均可复用 | 本阶段只要求 CLI；抽出通用 transport 层会是过度设计 |
@@ -147,7 +147,7 @@ validate() → 创建 before 快照 → apply() → 创建 after 快照
 
 1. **层级选择：命令放 domain，不放 application。** 命令只操作 `SvgDocument`，不依赖 CLI；放入 domain 可以让 `application` 和测试直接复用，也符合“application → domain”的单向依赖。
 2. **错误处理：业务可预期错误统一 `UserError`**，CLI 加 `error:` 前缀；未预期异常显示 `internal error`，但命令的 try/catch 会先恢复快照，避免半修改状态。
-3. **容器移动/缩放采用递归改几何，而不是新增 transform 属性。** 这与规范“scale 同乘到全部几何属性、容器递归到每个子孙”一致，也让 `tree` 能直接显示真实坐标；代价是对带外部 transform 的导入文档只保留原属性，不重新计算可视化等价。
+3. **容器移动/缩放采用递归改几何，而不是新增 transform 属性。** 这与规范“scale 同乘到全部几何属性、容器递归到每个子孙”一致，也让 `tree` 能直接显示真实坐标；带 transform 的导入文档会保留原属性，`ungroup` 时把容器的 transform 字符串拼到直接子节点上以保持渲染位置。
 4. **I/O 屏障是显式状态，不靠清空栈“假装”禁止。** `UndoManager.blocked` 让 `undo` 与 `redo` 都返回规范要求的 `undo not allowed after io command`，直到下一条编辑命令 `record()` 解除。
 
 ---
@@ -178,6 +178,7 @@ validate() → 创建 before 快照 → apply() → 创建 after 快照
 | 7 | 规范说 I/O 后“直到下一次编辑命令重新解禁”，只清空栈不够表达 | `UndoManager` 增加 `blocked` 标志；`undo`/`redo` 在 blocked 时返回统一错误；下一次 `record()` 解禁 | `history-io.test.ts` 覆盖 init/read/save/canvas 四种屏障 |
 | 8 | XML 解析错误可能带换行，违反“error 一行一条” | `CliApplication` 对 warning/error 做单行化，保留内容但折叠换行 | `cli-application.test.ts` 的解析错误用例；手工 malformed XML |
 | 9 | `init` / `canvas` 只给一个参数时的语义规范未明确 | 选择“宽度给定、高度沿用默认/当前值”，不拒绝单参数；文档和测试明确这一行为 | `history-io.test.ts` 的单参数用例 |
+| 10 | 实现完成后的独立规范审计发现：带命名空间的属性保存后前缀失配、根 `viewBox`/`preserveAspectRatio` 被重写、shape 的 `px` 长度被拒、`ungroup` 丢失容器 transform/fill、文本被 trim、group 顺序按参数而非文档顺序 | 逐项修复：保留根元数据与 `xmlns:*`；新增 `SvgLength`；`ungroup` 转移可继承属性并组合 transform；reader 不再 trim；group 按文档顺序排序 | `svg-io.test.ts` 的命名空间/根元数据/单位/空白文本用例；`editing.test.ts` 的继承状态和文档顺序用例 |
 
 ### 2.3 有代表性的 AI 建议审查
 
@@ -198,7 +199,7 @@ validate() → 创建 before 快照 → apply() → 创建 after 快照
 2. **实际运行而非只看代码**：每条关键命令通过 `npm run cli` 的实际 stdin/stdout 跑一遍，包括中文文本、引号、`#` 填色、缺少 id 的外部 SVG。
 3. **观测文件产物**：用浏览器打开 `examples/flowchart.svg`，截图见文档顶部；检查保存文件确实能被浏览器渲染。
 4. **独立审计**：实现完成后让 AI 按规范做一次只读审计，人工逐条复核它指出的问题；能复现的用测试固定，不能复现的说明为已知边界。
-5. **质量门禁**：类型检查、依赖检查、49 个测试、构建后运行四个命令都通过后才打 tag。
+5. **质量门禁**：类型检查、依赖检查、59 个测试、构建后运行四个命令都通过后才打 tag。
 
 ---
 
@@ -248,7 +249,7 @@ src/
 > svg-cli-editor@0.1.0 check:arch
 > node scripts/check-architecture.mjs
 
-Architecture check passed (63 TypeScript source files).
+Architecture check passed (64 TypeScript source files).
 ```
 
 抽样人工核对（与检查脚本一致）：
@@ -259,7 +260,7 @@ Architecture check passed (63 TypeScript source files).
 - `src/infrastructure/svg/FileSvgGateway.ts` 只 import `application/gateway`、domain 与同层 reader/writer；
 - 只有 `src/cli/main.ts` 同时 import application、infrastructure 并完成注入。
 
-检查脚本还同时执行“一类一文件、类名 = 文件名”的静态扫描；当前 63 个 `src/**/*.ts` 全部通过。检查规则本身在 `scripts/check-architecture.mjs`，不是一次性手工结论。
+检查脚本还同时执行“一类一文件、类名 = 文件名”的静态扫描；当前 64 个 `src/**/*.ts` 全部通过。检查规则本身在 `scripts/check-architecture.mjs`，不是一次性手工结论。
 
 ### 3.3 可复现的一致性检查
 
@@ -303,27 +304,28 @@ npm test
 
 ### 4.2 自动化测试
 
-测试分 7 个文件、**49 个用例**：
+测试分 8 个文件、**59 个用例**：
 
 | 文件 | 用例数 | 覆盖重点 |
 |---|---:|---|
 | `tests/application/parser.test.ts` | 6 | 分词、引号、注释、Windows 路径、未闭合引号 |
-| `tests/domain/model.test.ts` | 6 | 多态几何、Composite 递归、Memento 重复恢复、id 大小写/重复、全类型 clone |
+| `tests/application/number-format.test.ts` | 4 | 数字格式化、非法输入、非负/正数约束 |
+| `tests/domain/model.test.ts` | 7 | 多态几何、Composite 递归、Memento 重复恢复、根元数据快照、id 大小写/重复、全类型 clone |
 | `tests/integration/display.test.ts` | 3 | tree/show/help 格式与错误 |
-| `tests/integration/editing.test.ts` | 9 | 全命令、`in`、group/ungroup、addto、z-order、失败原子性 |
+| `tests/integration/editing.test.ts` | 11 | 全命令、`in`、group/ungroup、addto、z-order、失败原子性、文档顺序、继承状态 |
 | `tests/integration/history-io.test.ts` | 12 | I/O 屏障、redo 清空、save/read 失败不改状态、默认路径 |
-| `tests/io/svg-io.test.ts` | 11 | 缺 id 警告、顺序、round-trip、属性保留、XML 转义、坏输入 |
+| `tests/io/svg-io.test.ts` | 14 | 缺 id 警告、顺序、round-trip、根元数据、命名空间、单位、空白文本、坏输入 |
 | `tests/cli/cli-application.test.ts` | 2 | banner、prompt、错误前缀、quit |
 
 覆盖率（`npm run test:coverage`，v8）：
 
 ```text
-Test Files  7 passed (7)
-     Tests  49 passed (49)
-All files   88.19% stmts | 69.44% branch | 91.44% funcs | 88.15% lines
+Test Files  8 passed (8)
+     Tests  59 passed (59)
+All files   88.75% stmts | 70.22% branch | 91.87% funcs | 88.69% lines
 ```
 
-其中 `application` 为 95.3%、`infrastructure` 为 92.1%、`domain/command` 为 87.9%，`domain/model` 为 81.8%；未覆盖的主要是防御性分支（例如“validated 后容器消失”的内部异常）和少数参数错误分支。
+其中 `application` 为 95.3%、`infrastructure` 为 91.5%、`domain/command` 为 88.5%，`domain/model` 为 82.6%；未覆盖的主要是防御性分支（例如“validated 后容器消失”的内部异常）和少数参数错误分支。
 
 ### 4.3 手工验收
 
@@ -347,7 +349,7 @@ All files   88.19% stmts | 69.44% branch | 91.44% funcs | 88.15% lines
 ```text
 npm run typecheck      # tsc --noEmit
 npm run check:arch     # 依赖方向 + 一类一文件
-npm test               # 7 个测试文件、49 个用例
+npm test               # 8 个测试文件、59 个用例
 npm run test:coverage  # 88% 左右语句/行覆盖
 npm run build          # 生成可执行的 dist/
 ```
@@ -357,11 +359,12 @@ Git 历史按“脚手架 → 领域模型与命令 → 应用层 → IO → CLI
 ### 4.5 已知边界（如实说明）
 
 1. **`box` 插件未实现**：这是规范明确的 Phase 2 内容；本阶段 `create box` 按约定报错。
-2. **SVG transform 只保留、不解释**：导入的 `transform` 等未知属性会保存在 `extraAttributeEntries` 并在保存时写回，但编辑器不会把矩阵分解进子节点坐标。对无 transform 的文档语义完整；对带 transform 的外部文档，几何命令作用于局部坐标。
-3. **未知可见元素拒绝导入**：`path`、`polygon` 等不在六种内置类型内的元素报 `unsupported SVG element`；`title/desc/metadata/defs/style/script` 作为非渲染元数据忽略。
-4. **undo 使用整树快照**：实现简单、恢复精确，但历史深度大且文档大时内存会增长；变化点 3 已说明替换路径。
-5. **导入文本会 trim 首尾空白**：终端树形显示更稳定；如果需要保留 SVG 文本的首尾空白，可在 reader 中改为原样保留。
-6. **没有 Web GUI/插件加载器**：不属于 Phase 1 要求；CLI 之外的通道在变化点 5 中预留。
+2. **SVG transform 只保留、不解释**：导入的 `transform` 会保存在 `extraAttributeEntries` 并在保存时写回，编辑器的几何命令仍作用于局部坐标；`ungroup` 会把容器 transform 组合到子节点，避免位置跳变，但不会把矩阵分解进几何字段。
+3. **组级 opacity/style 在 ungroup 时无法完全等价展开**：fill/stroke/stroke-width、常用继承属性和 transform 会转移；`opacity` 作为组级合成属性没有分发到子节点，`style` 也不解析。规范未要求 CSS 语义，这属于已记录的保真边界。
+4. **未知可见元素拒绝导入**：`path`、`polygon` 等不在六种内置类型内的元素报 `unsupported SVG element`；`title/desc/metadata/defs/style/script` 作为非渲染元数据忽略，根级 `title/desc` 不会写回。
+5. **undo 使用整树快照**：实现简单、恢复精确，但历史深度大且文档大时内存会增长；变化点 3 已说明替换路径。
+6. **百分比/字体相对单位不支持 shape 几何**：`px/pt/pc/in/cm/mm/q` 会归一化为 px，`%` 与 `em` 需要布局上下文，导入时拒绝；根 `width/height` 的 `%` 会回退到 viewBox。
+7. **没有 Web GUI/插件加载器**：不属于 Phase 1 要求；CLI 之外的通道在变化点 5 中预留。
 
 这些边界不影响本阶段命令表的完整性与规范要求的错误行为；它们是下一阶段（插件化、Web、transform 映射）的明确输入，而不是未记录的缺陷。
 
