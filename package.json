@@ -10,14 +10,17 @@
   },
   "scripts": {
     "cli": "tsx src/cli/main.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && npm run build:vscode",
+    "build:cli": "tsc -p tsconfig.build.json",
+    "build:vscode": "node scripts/build-vscode.mjs",
+    "package:vscode": "npm run build:vscode && npx @vscode/vsce package --no-dependencies --cwd vscode-extension",
     "start": "node dist/cli/main.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "check:arch": "node scripts/check-architecture.mjs",
-    "check": "npm run typecheck && npm run check:arch && npm test"
+    "check": "npm run typecheck && npm run check:arch && npm test && npm run build:vscode"
   },
   "engines": {
     "node": ">=20"
@@ -27,7 +30,9 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
+    "@types/vscode": "^1.146.0",
     "@vitest/coverage-v8": "^5.0.5",
+    "esbuild": "^0.25.12",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"

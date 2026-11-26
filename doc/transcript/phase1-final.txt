@@ -1,0 +1,13 @@
+svg-editor 0.1 — type 'help' for commands
+
+svg> svg> svg> canvas 800x600 created
+svg> svg> g#flowchart created
+svg> g#node1 created in g#flowchart
+svg> rect#start created in g#node1
+svg> text#start-label created in g#node1
+svg> svg> g#node2 created in g#flowchart
+svg> rect#process created in g#node2
+svg> text#process-label created in g#node2
+svg> svg> line#arrow1 created in g#flowchart
+svg> saved to examples/flowchart.svg (8 elements)
+svg> 

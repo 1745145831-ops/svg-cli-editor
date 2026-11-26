@@ -1,0 +1,27 @@
+{
+  "name": "svg-outline-badge",
+  "displayName": "SVG Outline & Badge",
+  "description": "Shows a [] badge on SVG files and a source-linked SVG outline in VS Code.",
+  "version": "0.2.0",
+  "private": true,
+  "publisher": "svg-editor-course",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1745145831-ops/svg-cli-editor.git"
+  },
+  "scripts": {
+    "build": "node ../scripts/build-vscode.mjs",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  }
+}

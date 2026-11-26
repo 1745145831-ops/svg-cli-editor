@@ -16,5 +16,10 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "vscode-extension/src/**/*.ts",
+    "vitest.config.ts"
+  ]
 }
