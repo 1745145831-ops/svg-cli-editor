@@ -1,0 +1,23 @@
+# Phase 1 compatibility session. Input only: commands and comments.
+init 800 600
+create g diagram
+create g node1 in diagram
+create rect start 120 100 160 60 #4a90d9 in node1
+create text start-label 155 135 "开始" in node1
+create g node2 in diagram
+create rect process 520 100 160 60 #f5a623 in node2
+create text process-label 545 135 "处理数据" in node2
+create line arrow 280 130 520 130 #333333 in diagram
+tree
+show start
+move node1 10 20
+undo
+redo
+scale node1 1.5
+undo
+group extra start
+ungroup extra
+front node2
+back node2
+save out.svg
+quit

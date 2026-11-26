@@ -39,7 +39,7 @@ export class PluginConfigLoader {
   private readConfig(configPath: string): readonly PluginConfigEntry[] | null {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(readFileSync(configPath, "utf8"));
+      parsed = JSON.parse(readFileSync(configPath, "utf8").replace(/^\uFEFF/u, ""));
     } catch {
       return null;
     }
@@ -135,7 +135,9 @@ export class PluginConfigLoader {
       const candidate = join(directory, "package.json");
       if (existsSync(candidate)) {
         try {
-          const parsed = JSON.parse(readFileSync(candidate, "utf8")) as Record<string, unknown>;
+          const parsed = JSON.parse(
+            readFileSync(candidate, "utf8").replace(/^\uFEFF/u, "")
+          ) as Record<string, unknown>;
           if (typeof parsed.name === "string" || parsed.contributes !== undefined) {
             return {
               name: typeof parsed.name === "string" ? parsed.name : undefined,

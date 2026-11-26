@@ -1,0 +1,45 @@
+svg-editor 0.1 — type 'help' for commands
+
+svg> svg> canvas 800x600 created
+svg> g#flow created
+svg> rect#start created in g#flow
+svg> text#start-label created in g#flow
+svg> line#arrow created in g#flow
+svg> svg (800x600) *
+└── g#flow *
+    ├── rect#start        x=120 y=100 w=160 h=60 fill=#4a90d9 *
+    ├── text#start-label  (155,135) "开始" *
+    └── line#arrow        (280,130) -> (520,130) *
+svg> rect: 1  text: 1  line: 1  (total 3, containers 1)
+svg> [DIR]  docs
+[DIR]  plugins
+[FILE]  .hidden
+[FILE]  demo.svg
+[FILE]  package.json
+svg> rect#start updated: fill=#00aa88
+svg> rect#start updated: fill=#4a90d9
+svg> rect#start updated: fill=#00aa88
+svg> g#n1 created
+svg> g#n1 updated: fill=#f5a623
+svg> g#n1 updated: label=处理数据 v2
+svg> svg (800x600) *
+├── g#flow *
+│   ├── rect#start        x=120 y=100 w=160 h=60 fill=#00aa88 *
+│   ├── text#start-label  (155,135) "开始" *
+│   └── line#arrow        (280,130) -> (520,130) *
+└── g#n1 (box) *
+    ├── rect#n1-rect   x=520 y=100 w=160 h=60 fill=#f5a623 *
+    └── text#n1-label  (540,135) "处理数据 v2" *
+svg> rect: 2  text: 2  line: 1  (total 5, containers 2)
+svg> g#n1 updated: label=处理
+svg> g#n1 updated: label=处理数据 v2
+svg> svg (800x600) *
+├── g#flow *
+│   ├── rect#start        x=120 y=100 w=160 h=60 fill=#00aa88 *
+│   ├── text#start-label  (155,135) "开始" *
+│   └── line#arrow        (280,130) -> (520,130) *
+└── g#n1 (box) *
+    ├── rect#n1-rect   x=520 y=100 w=160 h=60 fill=#f5a623 *
+    └── text#n1-label  (540,135) "处理数据 v2" *
+svg> saved to out.svg (7 elements)
+svg> 

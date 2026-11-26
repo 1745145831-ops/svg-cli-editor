@@ -1,8 +1,8 @@
 {
   "name": "svg-cli-editor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "PJ1 Phase 1: an object-oriented, command-driven SVG editor for the terminal",
+  "description": "PJ1 Phase 2: a plugin-based SVG CLI editor and VS Code SVG outline extension",
   "type": "module",
   "main": "dist/cli/main.js",
   "bin": {
@@ -20,6 +20,9 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "check:arch": "node scripts/check-architecture.mjs",
+    "metrics": "node scripts/metrics.mjs",
+    "verify:assembly": "node scripts/verify-assembly.mjs",
+    "verify:compat": "node scripts/verify-compat.mjs",
     "check": "npm run typecheck && npm run check:arch && npm test && npm run build:vscode"
   },
   "engines": {
@@ -32,7 +35,7 @@
     "@types/node": "^26.6.5",
     "@types/vscode": "^1.146.0",
     "@vitest/coverage-v8": "^5.0.5",
-    "esbuild": "^0.25.12",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"

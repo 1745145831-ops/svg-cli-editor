@@ -50,6 +50,16 @@ describe("PluginConfigLoader", () => {
     expect(runtime.commands.find("alpha")?.name).toBe("alpha");
   });
 
+  it("accepts a UTF-8 BOM in the config file", async () => {
+    write("mods/alpha.mjs", SIMPLE_PLUGIN);
+    const path = write(
+      "bom.config.json",
+      `\uFEFF${JSON.stringify({ plugins: [{ module: "./mods/alpha.mjs" }] })}`
+    );
+    expect(await loader.load(path)).toEqual([]);
+    expect(runtime.commands.find("alpha")).toBeDefined();
+  });
+
   it("reports a missing module and continues with later entries", async () => {
     write("mods/alpha.mjs", SIMPLE_PLUGIN);
     const errors = await loader.load(
