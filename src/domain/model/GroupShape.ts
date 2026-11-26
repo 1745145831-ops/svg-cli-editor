@@ -16,6 +16,10 @@ export class GroupShape extends Shape {
     return "g";
   }
 
+  public override get allowsUngroup(): boolean {
+    return true;
+  }
+
   public get children(): readonly Shape[] {
     return this.childShapes;
   }

@@ -1,15 +1,12 @@
 import type { CommandResult } from "../../domain/command/CommandResult.js";
-import type { EditorSession } from "../EditorSession.js";
-import type { ShapeFactory } from "../../domain/factory/ShapeFactory.js";
-import type { SvgDocumentGateway } from "../gateway/SvgDocumentGateway.js";
+import type { CommandContext } from "../../kernel/context/CommandContext.js";
 
-/** Dependencies available to every command handler. */
-export interface CommandContext {
-  readonly session: EditorSession;
-  readonly gateway: SvgDocumentGateway;
-  readonly shapeFactory: ShapeFactory;
-}
+export type { CommandContext };
 
+/**
+ * Legacy handler signature retained for the built-in command plugin. The
+ * plugin-facing extension point is kernel/plugin/Command.
+ */
 export interface CommandHandler {
   execute(args: readonly string[], context: CommandContext): CommandResult;
 }

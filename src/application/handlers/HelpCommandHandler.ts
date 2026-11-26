@@ -5,11 +5,11 @@ import { ArgumentCheck } from "./ArgumentCheck.js";
 import type { CommandContext, CommandHandler } from "./CommandContext.js";
 
 export class HelpCommandHandler implements CommandHandler {
-  public execute(args: readonly string[], _context: CommandContext): CommandResult {
+  public execute(args: readonly string[], context: CommandContext): CommandResult {
     if (args.length !== 0) {
       throw new UserError("usage: help");
     }
     ArgumentCheck.exact(args, 0, "help");
-    return { message: HelpText.render() };
+    return { message: HelpText.render(context.commands, context.shapes) };
   }
 }

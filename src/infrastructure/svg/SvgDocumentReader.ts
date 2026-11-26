@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs";
 import { DOMParser } from "@xmldom/xmldom";
 import type { Element } from "@xmldom/xmldom";
-import type { SvgReadResult } from "../../application/gateway/SvgReadResult.js";
-import type { ShapeFactory } from "../../domain/factory/ShapeFactory.js";
+import type { SvgReadResult } from "../../kernel/ports/SvgReadResult.js";
+import type { ShapeRegistry } from "../../kernel/plugin/ShapeRegistry.js";
 import { SvgLength } from "../../domain/factory/SvgLength.js";
-import { GroupShape } from "../../domain/model/GroupShape.js";
 import { Shape, type SvgAttributeEntry } from "../../domain/model/Shape.js";
 import { SvgDocument } from "../../domain/model/SvgDocument.js";
 import { NumberFormat } from "../../shared/NumberFormat.js";
@@ -21,10 +20,11 @@ const IGNORED_TAGS = new Set([
 
 /**
  * Imports the supported SVG subset with DOM traversal (document order is
- * preserved). Missing ids are synthesized per tag and reported as warnings.
+ * preserved). Shape selection and creation are delegated to ShapeProviders,
+ * including container-specific reads such as box.
  */
 export class SvgDocumentReader {
-  public constructor(private readonly shapeFactory: ShapeFactory) {}
+  public constructor(private readonly shapes: ShapeRegistry) {}
 
   public read(filePath: string): SvgReadResult {
     let xml: string;
@@ -90,35 +90,40 @@ export class SvgDocumentReader {
     if (IGNORED_TAGS.has(tag)) {
       return null;
     }
-    if (!this.shapeFactory.isSupportedSvgTag(tag)) {
+    const attributes = this.readAttributes(element);
+    const provider = this.shapes.resolveSvg(tag, attributes);
+    if (provider === undefined) {
       throw new UserError(`unsupported SVG element: ${tag}`);
     }
     const id = ids.get(element);
     if (id === undefined) {
       throw new UserError(`missing id for <${tag}>`);
     }
-    const attributes = this.readAttributes(element);
-    const isText = tag === "text";
-    const textContent = isText ? (element.textContent ?? "") : "";
-    const shape = this.shapeFactory.createFromSvgElement(tag, id, attributes, textContent);
 
-    if (shape instanceof GroupShape) {
-      for (const child of this.elementChildren(element)) {
-        const childShape = this.convertElement(child, ids);
+    const children: Shape[] = [];
+    if (provider.isContainer) {
+      for (const childElement of this.elementChildren(element)) {
+        const childShape = this.convertElement(childElement, ids);
         if (childShape !== null) {
-          shape.appendChild(childShape);
+          children.push(childShape);
         }
       }
-      return shape;
-    }
-
-    for (const child of this.elementChildren(element)) {
-      const childTag = this.tagName(child);
-      if (!IGNORED_TAGS.has(childTag)) {
-        throw new UserError(`unsupported nested element <${childTag}> inside <${tag}>`);
+    } else {
+      for (const child of this.elementChildren(element)) {
+        const childTag = this.tagName(child);
+        if (!IGNORED_TAGS.has(childTag)) {
+          throw new UserError(`unsupported nested element <${childTag}> inside <${tag}>`);
+        }
       }
     }
-    return shape;
+
+    return provider.createFromSvg({
+      tag,
+      id,
+      attributes,
+      textContent: tag === "text" ? (element.textContent ?? "") : "",
+      children
+    });
   }
 
   private assignIds(root: Element, warnings: string[]): Map<Element, string> {
@@ -131,7 +136,7 @@ export class SvgDocumentReader {
         if (IGNORED_TAGS.has(tag)) {
           continue;
         }
-        if (this.shapeFactory.isSupportedSvgTag(tag)) {
+        if (this.shapes.isSupportedSvgTag(tag)) {
           const id = element.getAttribute("id");
           if (id !== null && id.length > 0) {
             if (used.has(id)) {
@@ -142,7 +147,7 @@ export class SvgDocumentReader {
             assigned.set(element, id);
           }
         }
-        if (this.shapeFactory.isContainerTag(tag)) {
+        if (this.shapes.isContainerTag(tag)) {
           collectExplicit(element);
         }
       }
@@ -155,7 +160,7 @@ export class SvgDocumentReader {
         if (IGNORED_TAGS.has(tag)) {
           continue;
         }
-        if (this.shapeFactory.isSupportedSvgTag(tag)) {
+        if (this.shapes.isSupportedSvgTag(tag)) {
           if (!assigned.has(element)) {
             let counter = counters.get(tag) ?? 1;
             let candidate = `${tag}${counter}`;
@@ -171,7 +176,7 @@ export class SvgDocumentReader {
             counters.set(tag, (counters.get(tag) ?? 1) + 1);
           }
         }
-        if (this.shapeFactory.isContainerTag(tag)) {
+        if (this.shapes.isContainerTag(tag)) {
           fillMissing(element);
         }
       }

@@ -9,9 +9,12 @@ const sourceRoot = join(root, "src");
 const allowedLayers = {
   shared: new Set(["shared"]),
   domain: new Set(["domain", "shared"]),
-  application: new Set(["application", "domain", "shared"]),
-  infrastructure: new Set(["infrastructure", "application", "domain", "shared"]),
-  cli: new Set(["cli", "application", "infrastructure", "domain", "shared"])
+  kernel: new Set(["kernel", "domain", "shared"]),
+  application: new Set(["application", "kernel", "domain", "shared"]),
+  infrastructure: new Set(["infrastructure", "kernel", "domain", "shared"]),
+  plugins: new Set(["plugins", "kernel", "application", "domain", "shared"]),
+  host: new Set(["host", "plugins", "kernel", "application", "infrastructure", "domain", "shared"]),
+  cli: new Set(["cli", "host", "plugins", "application", "infrastructure", "kernel", "domain", "shared"])
 };
 
 const errors = [];
@@ -44,7 +47,12 @@ for (const file of files) {
     ...source.matchAll(/\bimport\s*\(\s*["']([^"']+)["']/gu)
   ].map((match) => match[1]);
 
-  if (fileLayer === "domain" || fileLayer === "application" || fileLayer === "shared") {
+  if (
+    fileLayer === "domain" ||
+    fileLayer === "application" ||
+    fileLayer === "kernel" ||
+    fileLayer === "shared"
+  ) {
     for (const specifier of importSpecifiers) {
       if (!specifier.startsWith(".")) {
         errors.push(`${display}: ${fileLayer} may not import external module '${specifier}'`);
@@ -69,12 +77,11 @@ for (const file of files) {
     } else if (!allowed.has(targetLayer)) {
       errors.push(`${display}: ${fileLayer} -> ${targetLayer} is forbidden (${specifier})`);
     } else if (
-      fileLayer === "infrastructure" &&
-      targetLayer === "application" &&
-      !targetRelative.startsWith(`application${sep}gateway${sep}`)
+      fileLayer === "plugins" &&
+      (targetLayer === "host" || targetLayer === "cli")
     ) {
       errors.push(
-        `${display}: infrastructure may only use application/gateway ports (${specifier})`
+        `${display}: plugins may not depend on assembly code (${specifier})`
       );
     }
   }

@@ -34,6 +34,9 @@ export class UngroupShapeCommand extends EditCommand {
     if (!(shape instanceof GroupShape)) {
       throw new UserError(`not a container: ${this.groupId}`);
     }
+    if (!shape.allowsUngroup) {
+      throw new UserError(`cannot ungroup container: ${this.groupId}`);
+    }
     if (document.isRootChild(shape)) {
       throw new UserError(`cannot ungroup top-level container: ${this.groupId}`);
     }

@@ -3,12 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CommandDispatcher } from "../../src/application/CommandDispatcher.js";
 import { CommandParser } from "../../src/application/CommandParser.js";
-import { EditorSession } from "../../src/application/EditorSession.js";
-import type { CommandContext } from "../../src/application/handlers/CommandContext.js";
-import { ShapeFactory } from "../../src/domain/factory/ShapeFactory.js";
-import { FileSvgGateway } from "../../src/infrastructure/svg/FileSvgGateway.js";
-import { SvgDocumentReader } from "../../src/infrastructure/svg/SvgDocumentReader.js";
-import { SvgDocumentWriter } from "../../src/infrastructure/svg/SvgDocumentWriter.js";
+import type { CommandContext } from "../../src/kernel/context/CommandContext.js";
+import type { Plugin } from "../../src/kernel/plugin/Plugin.js";
+import { PluginHost } from "../../src/host/PluginHost.js";
 import { UserError } from "../../src/shared/UserError.js";
 
 export interface CommandOutcome {
@@ -18,27 +15,30 @@ export interface CommandOutcome {
   readonly exit: boolean;
 }
 
-/** In-process CLI harness: parser -> dispatcher -> real filesystem gateway. */
+/**
+ * In-process CLI harness. The default host has only the built-ins, so Phase 1
+ * compatibility tests stay independent of optional plugins.
+ */
 export class CommandHarness {
-  public readonly session = new EditorSession();
-  public readonly factory = new ShapeFactory();
-  public readonly gateway: FileSvgGateway;
-  public readonly dispatcher = new CommandDispatcher();
+  public readonly directory: string;
+  public readonly host: PluginHost;
+  public readonly dispatcher: CommandDispatcher;
   public readonly parser = new CommandParser();
   public readonly context: CommandContext;
-  public readonly directory: string;
 
   public constructor() {
     this.directory = mkdtempSync(join(tmpdir(), "svg-editor-test-"));
-    this.gateway = new FileSvgGateway(
-      new SvgDocumentReader(this.factory),
-      new SvgDocumentWriter()
-    );
-    this.context = {
-      session: this.session,
-      gateway: this.gateway,
-      shapeFactory: this.factory
-    };
+    this.host = new PluginHost(this.directory);
+    this.dispatcher = this.host.dispatcher;
+    this.context = this.host.context;
+  }
+
+  public get session() {
+    return this.host.session;
+  }
+
+  public activate(plugin: Plugin): void {
+    this.host.activate(plugin);
   }
 
   public run(line: string): CommandOutcome {

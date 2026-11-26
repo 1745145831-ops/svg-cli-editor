@@ -12,7 +12,13 @@ export class SetCommandHandler implements CommandHandler {
     ArgumentCheck.exact(args, 3, "set <id> <attr> <value>");
     context.session.requireDocument();
     return context.session.executeEdit(
-      new SetAttributeCommand(args[0] ?? "", args[1] ?? "", args[2] ?? "")
+      new SetAttributeCommand(
+        args[0] ?? "",
+        args[1] ?? "",
+        args[2] ?? "",
+        (document, shape, attribute, value) =>
+          context.attributes.apply(document, shape, attribute, value)
+      )
     );
   }
 }

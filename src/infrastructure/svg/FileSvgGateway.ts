@@ -1,5 +1,5 @@
-import type { SvgDocumentGateway } from "../../application/gateway/SvgDocumentGateway.js";
-import type { SvgReadResult } from "../../application/gateway/SvgReadResult.js";
+import type { SvgDocumentGateway } from "../../kernel/ports/SvgDocumentGateway.js";
+import type { SvgReadResult } from "../../kernel/ports/SvgReadResult.js";
 import type { SvgDocument } from "../../domain/model/SvgDocument.js";
 import { SvgDocumentReader } from "./SvgDocumentReader.js";
 import { SvgDocumentWriter } from "./SvgDocumentWriter.js";

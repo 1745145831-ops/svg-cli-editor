@@ -118,12 +118,18 @@ export class SvgDocument {
     if (shape.parent === null) {
       throw new Error(`shape ${shape.id} is not attached`);
     }
+    if (shape.isStructureLocked) {
+      throw new UserError(`cannot modify required structural child: ${shape.id}`);
+    }
     shape.parent.removeChild(shape);
     this.unindexSubtree(shape);
   }
 
   /** Moves an already registered shape/subtree to another container. */
   public move(shape: Shape, parent: GroupShape, index?: number): void {
+    if (shape.isStructureLocked) {
+      throw new UserError(`cannot modify required structural child: ${shape.id}`);
+    }
     if (parent === shape || (shape instanceof GroupShape && shape.containsShape(parent))) {
       throw new UserError(`cannot move a container into its own descendant: ${shape.id}`);
     }

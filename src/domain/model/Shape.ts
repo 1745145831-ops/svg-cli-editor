@@ -20,6 +20,7 @@ export abstract class Shape {
   private parentShape: GroupShape | null = null;
   private readonly presentation = new Map<string, string>();
   private readonly extraAttributes = new Map<string, string>();
+  private structureLocked = false;
 
   protected constructor(id: string) {
     Shape.assertValidId(id);
@@ -46,6 +47,23 @@ export abstract class Shape {
   /** Internal model wiring; use SvgDocument.attach/move/remove instead. */
   public attachToParent(parent: GroupShape | null): void {
     this.parentShape = parent;
+  }
+
+  /**
+   * Composite plugins may own required child parts (box is one). Locked parts
+   * cannot be deleted, moved or grouped away through ordinary commands.
+   */
+  public lockStructure(): void {
+    this.structureLocked = true;
+  }
+
+  public get isStructureLocked(): boolean {
+    return this.structureLocked;
+  }
+
+  /** Shortcut used by `ungroup`; leaf shapes and structural plugins opt out. */
+  public get allowsUngroup(): boolean {
+    return false;
   }
 
   public abstract get typeName(): string;

@@ -1,7 +1,29 @@
-/** Static help text for the REPL. */
+import type { CommandRegistry } from "../../kernel/plugin/CommandRegistry.js";
+import type { ShapeRegistry } from "../../kernel/plugin/ShapeRegistry.js";
+
+const BUILTIN_SHAPES = new Set(["rect", "circle", "ellipse", "line", "text", "g"]);
+
+/** Help text for the REPL. Plugin shapes/commands are appended without core edits. */
 export class HelpText {
-  public static render(): string {
-    return [
+  public static render(
+    commands?: CommandRegistry,
+    shapes?: ShapeRegistry
+  ): string {
+    const shapeLines = [
+      "    rect <id> <x> <y> <w> <h> [fill]",
+      "    circle <id> <cx> <cy> <r> [fill]",
+      "    ellipse <id> <cx> <cy> <rx> <ry> [fill]",
+      "    line <id> <x1> <y1> <x2> <y2> [stroke]",
+      '    text <id> <x> <y> "content"',
+      "    g <id>"
+    ];
+    for (const provider of shapes?.all() ?? []) {
+      if (!BUILTIN_SHAPES.has(provider.shapeType) && provider.helpUsage !== undefined) {
+        shapeLines.push(`    ${provider.helpUsage}`);
+      }
+    }
+
+    const lines = [
       "svg-editor commands",
       "",
       "Document:",
@@ -12,12 +34,7 @@ export class HelpText {
       "",
       "Shapes:",
       "  create <type> <id> [params...] [in <containerId>]",
-      "    rect <id> <x> <y> <w> <h> [fill]",
-      "    circle <id> <cx> <cy> <r> [fill]",
-      "    ellipse <id> <cx> <cy> <rx> <ry> [fill]",
-      "    line <id> <x1> <y1> <x2> <y2> [stroke]",
-      "    text <id> <x> <y> \"content\"",
-      "    g <id>",
+      ...shapeLines,
       "  delete <id>                 delete a shape and its descendants",
       "  move <id> <dx> <dy>         translate by an increment",
       "  scale <id> <factor>         scale geometry by a positive factor",
@@ -32,10 +49,22 @@ export class HelpText {
       "  show <id>                   show one shape's attributes",
       "  undo / redo                 undo or redo one edit",
       "  help                        show this help",
-      "  quit / exit                 leave the editor",
+      "  quit / exit                 leave the editor"
+    ];
+
+    const pluginCommands = commands?.pluginCommands() ?? [];
+    if (pluginCommands.length > 0) {
+      lines.push("", "Plugin commands:");
+      for (const command of pluginCommands) {
+        lines.push(`  ${command.usage.padEnd(28)}${command.summary}`);
+      }
+    }
+
+    lines.push(
       "",
       "Use double quotes for arguments containing spaces. Lines starting with # are comments. " +
         "I/O commands (init/read/save/canvas resize) start a new undo epoch."
-    ].join("\n");
+    );
+    return lines.join("\n");
   }
 }

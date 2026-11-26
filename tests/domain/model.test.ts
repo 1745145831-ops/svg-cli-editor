@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ShapeFactory } from "../../src/domain/factory/ShapeFactory.js";
+import { PluginRuntime } from "../../src/kernel/plugin/PluginRuntime.js";
+import { BuiltinShapesPlugin } from "../../src/plugins/builtin-shapes/BuiltinShapesPlugin.js";
 import { GroupShape } from "../../src/domain/model/GroupShape.js";
 import { RectShape } from "../../src/domain/model/RectShape.js";
 import { SvgDocument } from "../../src/domain/model/SvgDocument.js";
@@ -7,18 +8,21 @@ import { UserError } from "../../src/shared/UserError.js";
 
 describe("shape model", () => {
   it("moves and scales a group recursively through all descendants", () => {
-    const factory = new ShapeFactory();
+    const runtime = new PluginRuntime();
+    runtime.activate(new BuiltinShapesPlugin());
     const document = new SvgDocument(800, 600);
     const group = new GroupShape("g1");
     document.attach(group);
-    const rect = factory.createFromCreateArgs("rect", "r1", [
-      "10",
-      "20",
-      "30",
-      "40",
-      "red"
-    ]);
-    const text = factory.createFromCreateArgs("text", "t1", ["5", "6", "note"]);
+    const rect = runtime.shapes.createFromCli({
+      type: "rect",
+      id: "r1",
+      args: ["10", "20", "30", "40", "red"]
+    });
+    const text = runtime.shapes.createFromCli({
+      type: "text",
+      id: "t1",
+      args: ["5", "6", "note"]
+    });
     document.attach(rect, group);
     document.attach(text, group);
 
@@ -118,27 +122,26 @@ describe("shape model", () => {
   });
 
   it("applies geometry setters, moves, scales and clones for every leaf type", () => {
-    const factory = new ShapeFactory();
-    const rect = factory.createFromCreateArgs("rect", "r", [
-      "1",
-      "2",
-      "3",
-      "4"
-    ]);
-    const circle = factory.createFromCreateArgs("circle", "c", ["1", "2", "3"]);
-    const ellipse = factory.createFromCreateArgs("ellipse", "e", [
-      "1",
-      "2",
-      "3",
-      "4"
-    ]);
-    const line = factory.createFromCreateArgs("line", "l", [
-      "1",
-      "2",
-      "3",
-      "4"
-    ]);
-    const text = factory.createFromCreateArgs("text", "t", ["1", "2", "label"]);
+    const runtime = new PluginRuntime();
+    runtime.activate(new BuiltinShapesPlugin());
+    const factory = runtime.shapes;
+    const rect = factory.createFromCli({ type: "rect", id: "r", args: ["1", "2", "3", "4"] });
+    const circle = factory.createFromCli({ type: "circle", id: "c", args: ["1", "2", "3"] });
+    const ellipse = factory.createFromCli({
+      type: "ellipse",
+      id: "e",
+      args: ["1", "2", "3", "4"]
+    });
+    const line = factory.createFromCli({
+      type: "line",
+      id: "l",
+      args: ["1", "2", "3", "4"]
+    });
+    const text = factory.createFromCli({
+      type: "text",
+      id: "t",
+      args: ["1", "2", "label"]
+    });
 
     rect.setAttribute("height", "8");
     circle.setAttribute("r", "6");

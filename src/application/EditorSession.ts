@@ -2,6 +2,8 @@ import type { CommandResult } from "../domain/command/CommandResult.js";
 import type { EditorCommand } from "../domain/command/EditorCommand.js";
 import { UndoManager } from "../domain/command/UndoManager.js";
 import { SvgDocument } from "../domain/model/SvgDocument.js";
+import { DocumentEventBus } from "../kernel/ports/DocumentEventBus.js";
+import type { SessionPort } from "../kernel/ports/SessionPort.js";
 import { UserError } from "../shared/UserError.js";
 
 /**
@@ -9,10 +11,12 @@ import { UserError } from "../shared/UserError.js";
  * and the undo history, and is the only place where document-level commands
  * can create the I/O undo barrier.
  */
-export class EditorSession {
+export class EditorSession implements SessionPort {
   private currentDocument: SvgDocument | null = null;
   private filePath: string | null = null;
   private readonly undoManager = new UndoManager();
+
+  public constructor(private readonly events = new DocumentEventBus()) {}
 
   public get document(): SvgDocument | null {
     return this.currentDocument;
@@ -41,12 +45,14 @@ export class EditorSession {
     this.currentDocument = new SvgDocument(width, height);
     this.filePath = null;
     this.undoManager.clearAndBlock();
+    this.events.emit({ type: "loaded", document: this.currentDocument });
   }
 
   public load(document: SvgDocument, filePath: string): void {
     this.currentDocument = document;
     this.filePath = filePath;
     this.undoManager.clearAndBlock();
+    this.events.emit({ type: "loaded", document });
   }
 
   public executeEdit(command: EditorCommand): CommandResult {
@@ -76,5 +82,9 @@ export class EditorSession {
   public markSaved(filePath: string): void {
     this.filePath = filePath;
     this.undoManager.clearAndBlock();
+    if (this.currentDocument !== null) {
+      this.events.emit({ type: "saved", document: this.currentDocument });
+    }
   }
 }
+

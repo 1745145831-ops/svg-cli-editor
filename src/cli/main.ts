@@ -1,28 +1,60 @@
 #!/usr/bin/env node
-import { CommandDispatcher } from "../application/CommandDispatcher.js";
 import { CommandParser } from "../application/CommandParser.js";
-import { EditorSession } from "../application/EditorSession.js";
-import type { CommandContext } from "../application/handlers/CommandContext.js";
-import { ShapeFactory } from "../domain/factory/ShapeFactory.js";
-import { FileSvgGateway } from "../infrastructure/svg/FileSvgGateway.js";
-import { SvgDocumentReader } from "../infrastructure/svg/SvgDocumentReader.js";
-import { SvgDocumentWriter } from "../infrastructure/svg/SvgDocumentWriter.js";
+import { codeAssembly } from "../host/CodeAssembly.js";
+import { PluginConfigLoader } from "../host/loader/PluginConfigLoader.js";
+import { PluginHost } from "../host/PluginHost.js";
 import { CliApplication } from "./CliApplication.js";
 
+interface StartupOptions {
+  readonly configPath?: string;
+}
+
+function parseArguments(argv: readonly string[]): StartupOptions {
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index] ?? "";
+    if (argument === "--config") {
+      return { configPath: argv[index + 1] ?? "" };
+    }
+    if (argument.startsWith("--config=")) {
+      return { configPath: argument.slice("--config=".length) };
+    }
+  }
+  return {};
+}
+
+function report(message: string): void {
+  process.stderr.write(`error: ${message}\n`);
+}
+
 async function main(): Promise<void> {
-  const session = new EditorSession();
-  const shapeFactory = new ShapeFactory();
-  const gateway = new FileSvgGateway(
-    new SvgDocumentReader(shapeFactory),
-    new SvgDocumentWriter()
-  );
-  const context: CommandContext = { session, gateway, shapeFactory };
+  const options = parseArguments(process.argv.slice(2));
+  const host = new PluginHost();
+
+  if (options.configPath !== undefined) {
+    if (options.configPath.length === 0) {
+      report("invalid plugin config");
+    } else {
+      const loader = new PluginConfigLoader(host.runtime);
+      for (const message of await loader.load(options.configPath)) {
+        report(message);
+      }
+    }
+  } else {
+    for (const plugin of codeAssembly) {
+      try {
+        host.activate(plugin);
+      } catch (error) {
+        report(error instanceof Error ? error.message : String(error));
+      }
+    }
+  }
+
   const application = new CliApplication(
     process.stdin,
     process.stdout,
-    new CommandDispatcher(),
+    host.dispatcher,
     new CommandParser(),
-    context
+    host.context
   );
   await application.run();
 }
