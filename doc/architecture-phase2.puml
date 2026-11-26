@@ -1,0 +1,128 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "Microsoft YaHei"
+skinparam arrowColor #5A6B7B
+skinparam nodesep 30
+skinparam ranksep 38
+hide stereotype
+top to bottom direction
+
+package "src/cli + src/host (assembly)" as host {
+  [main\nargument parsing] as MAIN
+  [PluginHost\ncomposition root] as HOST
+  [CodeAssembly\n方式 A] as CODE
+  [PluginConfigLoader\n方式 B] as LOADER
+  [CliApplication] as CLI_APP
+}
+
+package "src/plugins" as plugins {
+  [BuiltinShapesPlugin\n6 ShapeProviders] as P_SHAPES
+  [BuiltinCommandPlugin\n20 Commands] as P_COMMANDS
+  [StatsPlugin] as P_STATS
+  [DirPlugin] as P_DIR
+  [BoxPlugin\nshape + attr + label] as P_BOX
+  [TreeStarPlugin\nmodified-star] as P_STAR
+}
+
+package "src/kernel (extension kernel)" as kernel {
+  [PluginRuntime\ntransactional activation] as RUNTIME
+  interface "ShapeProvider" as I_SHAPE
+  interface "Command" as I_COMMAND
+  interface "TreeDecorator" as I_TREE
+  interface "AttributeHandler" as I_ATTR
+  [ShapeRegistry] as R_SHAPE
+  [CommandRegistry] as R_COMMAND
+  [TreeDecoratorRegistry] as R_TREE
+  [AttributeRegistry] as R_ATTR
+  interface "SessionPort" as SESSION_PORT
+  interface "SvgDocumentGateway" as GATEWAY
+  interface "DirectoryAccess" as DIRECTORY
+  [CommandContext] as CONTEXT
+}
+
+package "src/application" as app {
+  [CommandParser / Dispatcher] as PARSER
+  [EditorSession\nimplements SessionPort] as SESSION
+  [Built-in handlers] as HANDLERS
+  [HelpText / TreeRenderer] as DISPLAY
+}
+
+package "src/domain" as domain {
+  [SvgDocument + Shape hierarchy] as MODEL
+  [EditorCommand + Memento] as DOMAIN_COMMAND
+  [SvgLength] as LENGTH
+}
+
+package "src/infrastructure" as infra {
+  [SvgDocumentReader / Writer] as SVG_IO
+  [FileSvgGateway] as FILE_GATEWAY
+  [NodeDirectoryAccess] as FS_ADAPTER
+}
+
+database "SVG files / filesystem" as FILES
+
+MAIN --> HOST
+MAIN --> CODE
+MAIN --> LOADER
+HOST --> RUNTIME
+HOST --> CLI_APP
+CODE ..> plugins : imports plugin instances
+LOADER ..> plugins : dynamic import by module specifier
+
+RUNTIME --> R_SHAPE
+RUNTIME --> R_COMMAND
+RUNTIME --> R_TREE
+RUNTIME --> R_ATTR
+R_SHAPE ..> I_SHAPE
+R_COMMAND ..> I_COMMAND
+R_TREE ..> I_TREE
+R_ATTR ..> I_ATTR
+HOST --> CONTEXT
+CONTEXT --> R_SHAPE
+CONTEXT --> R_COMMAND
+CONTEXT --> R_TREE
+CONTEXT --> R_ATTR
+CONTEXT --> SESSION_PORT
+CONTEXT --> GATEWAY
+CONTEXT --> DIRECTORY
+
+P_SHAPES ..|> I_SHAPE
+P_BOX ..|> I_SHAPE
+P_BOX ..|> I_ATTR
+P_BOX ..|> I_TREE
+P_STAR ..|> I_TREE
+P_COMMANDS ..|> I_COMMAND
+P_STATS ..|> I_COMMAND
+P_DIR ..|> I_COMMAND
+
+PARSER --> R_COMMAND
+HANDLERS --> SESSION_PORT
+HANDLERS --> GATEWAY
+HANDLERS --> DIRECTORY
+HANDLERS --> DISPLAY
+SESSION ..|> SESSION_PORT
+SESSION --> DOMAIN_COMMAND
+DISPLAY --> R_TREE
+DISPLAY --> MODEL
+DOMAIN_COMMAND --> MODEL
+SVG_IO --> R_SHAPE
+SVG_IO --> MODEL
+FILE_GATEWAY ..|> GATEWAY
+FS_ADAPTER ..|> DIRECTORY
+FILE_GATEWAY --> SVG_IO
+SVG_IO --> FILES
+FS_ADAPTER --> FILES
+
+note right of RUNTIME
+  Stages all contributions,
+  validates package contributes,
+  pre-checks duplicates, then commits.
+end note
+note bottom of CODE
+  Only this assembly file changes when
+  a plugin is added in 方式 A.
+end note
+
+@enduml

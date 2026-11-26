@@ -1,0 +1,1160 @@
+{
+  "base": {
+    "ref": "final",
+    "commit": "609334c",
+    "summary": {
+      "kernel": {
+        "files": 62,
+        "loc": 2662,
+        "complexity": 416
+      },
+      "assembly": {
+        "files": 2,
+        "loc": 97,
+        "complexity": 15
+      },
+      "plugin": {
+        "files": 0,
+        "loc": 0,
+        "complexity": 0
+      },
+      "total": {
+        "files": 64,
+        "loc": 2759,
+        "complexity": 431
+      }
+    }
+  },
+  "head": {
+    "ref": "HEAD",
+    "commit": "af8016d",
+    "summary": {
+      "kernel": {
+        "files": 82,
+        "loc": 3122,
+        "complexity": 492
+      },
+      "assembly": {
+        "files": 6,
+        "loc": 346,
+        "complexity": 81
+      },
+      "plugin": {
+        "files": 24,
+        "loc": 751,
+        "complexity": 83
+      },
+      "total": {
+        "files": 112,
+        "loc": 4219,
+        "complexity": 656
+      }
+    }
+  },
+  "vscode": {
+    "files": 5,
+    "loc": 298,
+    "complexity": 66,
+    "entries": [
+      {
+        "path": "vscode-extension/src/extension.ts",
+        "loc": 14,
+        "complexity": 1
+      },
+      {
+        "path": "vscode-extension/src/outlineParser.ts",
+        "loc": 224,
+        "complexity": 58
+      },
+      {
+        "path": "vscode-extension/src/svgBadgeProvider.ts",
+        "loc": 25,
+        "complexity": 4
+      },
+      {
+        "path": "vscode-extension/src/svgFile.ts",
+        "loc": 7,
+        "complexity": 2
+      },
+      {
+        "path": "vscode-extension/src/svgOutlineProvider.ts",
+        "loc": 28,
+        "complexity": 1
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "src/application/CommandDispatcher.ts",
+      "category": "kernel",
+      "loc": 10,
+      "complexity": 1,
+      "classes": [
+        "CommandDispatcher"
+      ],
+      "role": "解析、分发与会话"
+    },
+    {
+      "path": "src/application/CommandParser.ts",
+      "category": "kernel",
+      "loc": 17,
+      "complexity": 4,
+      "classes": [
+        "CommandParser"
+      ],
+      "role": "解析、分发与会话"
+    },
+    {
+      "path": "src/application/EditorSession.ts",
+      "category": "kernel",
+      "loc": 69,
+      "complexity": 3,
+      "classes": [
+        "EditorSession"
+      ],
+      "role": "解析、分发与会话"
+    },
+    {
+      "path": "src/application/LineTokenizer.ts",
+      "category": "kernel",
+      "loc": 58,
+      "complexity": 17,
+      "classes": [
+        "LineTokenizer"
+      ],
+      "role": "解析、分发与会话"
+    },
+    {
+      "path": "src/application/ParsedCommand.ts",
+      "category": "kernel",
+      "loc": 4,
+      "complexity": 1,
+      "classes": [],
+      "role": "解析、分发与会话"
+    },
+    {
+      "path": "src/application/display/HelpText.ts",
+      "category": "kernel",
+      "loc": 64,
+      "complexity": 10,
+      "classes": [
+        "HelpText"
+      ],
+      "role": "帮助、结构树与详情渲染"
+    },
+    {
+      "path": "src/application/display/ShapeDetailsFormatter.ts",
+      "category": "kernel",
+      "loc": 34,
+      "complexity": 8,
+      "classes": [
+        "ShapeDetailsFormatter"
+      ],
+      "role": "帮助、结构树与详情渲染"
+    },
+    {
+      "path": "src/application/display/TreeRenderer.ts",
+      "category": "kernel",
+      "loc": 68,
+      "complexity": 13,
+      "classes": [
+        "TreeRenderer"
+      ],
+      "role": "帮助、结构树与详情渲染"
+    },
+    {
+      "path": "src/application/handlers/AddToCommandHandler.ts",
+      "category": "kernel",
+      "loc": 13,
+      "complexity": 3,
+      "classes": [
+        "AddToCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/ArgumentCheck.ts",
+      "category": "kernel",
+      "loc": 23,
+      "complexity": 5,
+      "classes": [
+        "ArgumentCheck"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/BackCommandHandler.ts",
+      "category": "kernel",
+      "loc": 13,
+      "complexity": 2,
+      "classes": [
+        "BackCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/CanvasCommandHandler.ts",
+      "category": "kernel",
+      "loc": 24,
+      "complexity": 5,
+      "classes": [
+        "CanvasCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/CommandContext.ts",
+      "category": "kernel",
+      "loc": 6,
+      "complexity": 1,
+      "classes": [],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/CreateCommandHandler.ts",
+      "category": "kernel",
+      "loc": 49,
+      "complexity": 10,
+      "classes": [
+        "CreateCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/DeleteCommandHandler.ts",
+      "category": "kernel",
+      "loc": 11,
+      "complexity": 2,
+      "classes": [
+        "DeleteCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/FrontCommandHandler.ts",
+      "category": "kernel",
+      "loc": 13,
+      "complexity": 2,
+      "classes": [
+        "FrontCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/GroupCommandHandler.ts",
+      "category": "kernel",
+      "loc": 14,
+      "complexity": 2,
+      "classes": [
+        "GroupCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/HelpCommandHandler.ts",
+      "category": "kernel",
+      "loc": 14,
+      "complexity": 2,
+      "classes": [
+        "HelpCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/InitCommandHandler.ts",
+      "category": "kernel",
+      "loc": 21,
+      "complexity": 5,
+      "classes": [
+        "InitCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/MoveCommandHandler.ts",
+      "category": "kernel",
+      "loc": 16,
+      "complexity": 4,
+      "classes": [
+        "MoveCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/QuitCommandHandler.ts",
+      "category": "kernel",
+      "loc": 9,
+      "complexity": 1,
+      "classes": [
+        "QuitCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/ReadCommandHandler.ts",
+      "category": "kernel",
+      "loc": 15,
+      "complexity": 2,
+      "classes": [
+        "ReadCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/RedoCommandHandler.ts",
+      "category": "kernel",
+      "loc": 9,
+      "complexity": 1,
+      "classes": [
+        "RedoCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/SaveCommandHandler.ts",
+      "category": "kernel",
+      "loc": 18,
+      "complexity": 4,
+      "classes": [
+        "SaveCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/ScaleCommandHandler.ts",
+      "category": "kernel",
+      "loc": 15,
+      "complexity": 3,
+      "classes": [
+        "ScaleCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/SetCommandHandler.ts",
+      "category": "kernel",
+      "loc": 23,
+      "complexity": 5,
+      "classes": [
+        "SetCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/ShowCommandHandler.ts",
+      "category": "kernel",
+      "loc": 12,
+      "complexity": 2,
+      "classes": [
+        "ShowCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/TreeCommandHandler.ts",
+      "category": "kernel",
+      "loc": 12,
+      "complexity": 1,
+      "classes": [
+        "TreeCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/UndoCommandHandler.ts",
+      "category": "kernel",
+      "loc": 9,
+      "complexity": 1,
+      "classes": [
+        "UndoCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/application/handlers/UngroupCommandHandler.ts",
+      "category": "kernel",
+      "loc": 11,
+      "complexity": 2,
+      "classes": [
+        "UngroupCommandHandler"
+      ],
+      "role": "内置命令处理器"
+    },
+    {
+      "path": "src/cli/CliApplication.ts",
+      "category": "assembly",
+      "loc": 65,
+      "complexity": 12,
+      "classes": [
+        "CliApplication"
+      ],
+      "role": "CLI 终端适配器与入口"
+    },
+    {
+      "path": "src/cli/main.ts",
+      "category": "assembly",
+      "loc": 59,
+      "complexity": 15,
+      "classes": [],
+      "role": "CLI 终端适配器与入口"
+    },
+    {
+      "path": "src/domain/command/AddToContainerCommand.ts",
+      "category": "kernel",
+      "loc": 50,
+      "complexity": 9,
+      "classes": [
+        "AddToContainerCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/CommandResult.ts",
+      "category": "kernel",
+      "loc": 5,
+      "complexity": 3,
+      "classes": [],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/CreateShapeCommand.ts",
+      "category": "kernel",
+      "loc": 45,
+      "complexity": 8,
+      "classes": [
+        "CreateShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/DeleteShapeCommand.ts",
+      "category": "kernel",
+      "loc": 28,
+      "complexity": 3,
+      "classes": [
+        "DeleteShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/EditCommand.ts",
+      "category": "kernel",
+      "loc": 49,
+      "complexity": 5,
+      "classes": [
+        "EditCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/EditorCommand.ts",
+      "category": "kernel",
+      "loc": 7,
+      "complexity": 1,
+      "classes": [],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/GroupShapesCommand.ts",
+      "category": "kernel",
+      "loc": 73,
+      "complexity": 14,
+      "classes": [
+        "GroupShapesCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/MoveShapeCommand.ts",
+      "category": "kernel",
+      "loc": 44,
+      "complexity": 5,
+      "classes": [
+        "MoveShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/ReorderShapeCommand.ts",
+      "category": "kernel",
+      "loc": 33,
+      "complexity": 2,
+      "classes": [
+        "ReorderShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/ScaleShapeCommand.ts",
+      "category": "kernel",
+      "loc": 32,
+      "complexity": 3,
+      "classes": [
+        "ScaleShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/SetAttributeCommand.ts",
+      "category": "kernel",
+      "loc": 44,
+      "complexity": 3,
+      "classes": [
+        "SetAttributeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/UndoManager.ts",
+      "category": "kernel",
+      "loc": 66,
+      "complexity": 8,
+      "classes": [
+        "UndoManager"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/command/UngroupShapeCommand.ts",
+      "category": "kernel",
+      "loc": 87,
+      "complexity": 15,
+      "classes": [
+        "UngroupShapeCommand"
+      ],
+      "role": "命令模式、Memento 与撤销"
+    },
+    {
+      "path": "src/domain/factory/SvgLength.ts",
+      "category": "kernel",
+      "loc": 29,
+      "complexity": 13,
+      "classes": [
+        "SvgLength"
+      ],
+      "role": "SVG 长度归一化"
+    },
+    {
+      "path": "src/domain/model/CircleShape.ts",
+      "category": "kernel",
+      "loc": 63,
+      "complexity": 4,
+      "classes": [
+        "CircleShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/DocumentMemento.ts",
+      "category": "kernel",
+      "loc": 26,
+      "complexity": 1,
+      "classes": [
+        "DocumentMemento"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/EllipseShape.ts",
+      "category": "kernel",
+      "loc": 78,
+      "complexity": 5,
+      "classes": [
+        "EllipseShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/GroupShape.ts",
+      "category": "kernel",
+      "loc": 101,
+      "complexity": 14,
+      "classes": [
+        "GroupShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/LineShape.ts",
+      "category": "kernel",
+      "loc": 77,
+      "complexity": 5,
+      "classes": [
+        "LineShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/RectShape.ts",
+      "category": "kernel",
+      "loc": 78,
+      "complexity": 5,
+      "classes": [
+        "RectShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/Shape.ts",
+      "category": "kernel",
+      "loc": 150,
+      "complexity": 19,
+      "classes": [
+        "Shape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/SvgDocument.ts",
+      "category": "kernel",
+      "loc": 176,
+      "complexity": 31,
+      "classes": [
+        "SvgDocument"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/domain/model/TextShape.ts",
+      "category": "kernel",
+      "loc": 76,
+      "complexity": 5,
+      "classes": [
+        "TextShape"
+      ],
+      "role": "领域模型与组合树"
+    },
+    {
+      "path": "src/host/CodeAssembly.ts",
+      "category": "assembly",
+      "loc": 11,
+      "complexity": 1,
+      "classes": [],
+      "role": "组合根与代码装配"
+    },
+    {
+      "path": "src/host/PluginHost.ts",
+      "category": "assembly",
+      "loc": 51,
+      "complexity": 3,
+      "classes": [
+        "PluginHost"
+      ],
+      "role": "组合根与代码装配"
+    },
+    {
+      "path": "src/host/loader/PluginConfig.ts",
+      "category": "assembly",
+      "loc": 8,
+      "complexity": 3,
+      "classes": [],
+      "role": "配置装配加载器"
+    },
+    {
+      "path": "src/host/loader/PluginConfigLoader.ts",
+      "category": "assembly",
+      "loc": 152,
+      "complexity": 47,
+      "classes": [
+        "PluginConfigLoader"
+      ],
+      "role": "配置装配加载器"
+    },
+    {
+      "path": "src/infrastructure/fs/NodeDirectoryAccess.ts",
+      "category": "kernel",
+      "loc": 21,
+      "complexity": 4,
+      "classes": [
+        "NodeDirectoryAccess"
+      ],
+      "role": "目录访问基础设施适配器"
+    },
+    {
+      "path": "src/infrastructure/svg/FileSvgGateway.ts",
+      "category": "kernel",
+      "loc": 17,
+      "complexity": 1,
+      "classes": [
+        "FileSvgGateway"
+      ],
+      "role": "SVG 读写基础设施适配器"
+    },
+    {
+      "path": "src/infrastructure/svg/SvgDocumentReader.ts",
+      "category": "kernel",
+      "loc": 237,
+      "complexity": 60,
+      "classes": [
+        "SvgDocumentReader"
+      ],
+      "role": "SVG 读写基础设施适配器"
+    },
+    {
+      "path": "src/infrastructure/svg/SvgDocumentWriter.ts",
+      "category": "kernel",
+      "loc": 69,
+      "complexity": 8,
+      "classes": [
+        "SvgDocumentWriter"
+      ],
+      "role": "SVG 读写基础设施适配器"
+    },
+    {
+      "path": "src/kernel/context/CommandContext.ts",
+      "category": "kernel",
+      "loc": 19,
+      "complexity": 1,
+      "classes": [],
+      "role": "命令上下文"
+    },
+    {
+      "path": "src/kernel/plugin/AttributeHandler.ts",
+      "category": "kernel",
+      "loc": 14,
+      "complexity": 1,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/AttributeRegistry.ts",
+      "category": "kernel",
+      "loc": 62,
+      "complexity": 8,
+      "classes": [
+        "AttributeRegistry"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/Command.ts",
+      "category": "kernel",
+      "loc": 10,
+      "complexity": 3,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/CommandRegistry.ts",
+      "category": "kernel",
+      "loc": 53,
+      "complexity": 12,
+      "classes": [
+        "CommandRegistry"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/Plugin.ts",
+      "category": "kernel",
+      "loc": 7,
+      "complexity": 2,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/PluginActivationContext.ts",
+      "category": "kernel",
+      "loc": 37,
+      "complexity": 1,
+      "classes": [
+        "PluginActivationContext"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/PluginContext.ts",
+      "category": "kernel",
+      "loc": 12,
+      "complexity": 1,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/PluginError.ts",
+      "category": "kernel",
+      "loc": 13,
+      "complexity": 1,
+      "classes": [
+        "PluginError"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/PluginManifest.ts",
+      "category": "kernel",
+      "loc": 51,
+      "complexity": 12,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/PluginRuntime.ts",
+      "category": "kernel",
+      "loc": 82,
+      "complexity": 18,
+      "classes": [
+        "PluginRuntime"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/ShapeProvider.ts",
+      "category": "kernel",
+      "loc": 24,
+      "complexity": 5,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/ShapeRegistry.ts",
+      "category": "kernel",
+      "loc": 70,
+      "complexity": 10,
+      "classes": [
+        "ShapeRegistry"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/SvgProviderSupport.ts",
+      "category": "kernel",
+      "loc": 64,
+      "complexity": 11,
+      "classes": [
+        "SvgProviderSupport"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/TreeDecorator.ts",
+      "category": "kernel",
+      "loc": 10,
+      "complexity": 1,
+      "classes": [],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/plugin/TreeDecoratorRegistry.ts",
+      "category": "kernel",
+      "loc": 30,
+      "complexity": 5,
+      "classes": [
+        "TreeDecoratorRegistry"
+      ],
+      "role": "扩展点接口、注册表与插件运行时"
+    },
+    {
+      "path": "src/kernel/ports/DirectoryAccess.ts",
+      "category": "kernel",
+      "loc": 8,
+      "complexity": 1,
+      "classes": [],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/kernel/ports/DocumentEventBus.ts",
+      "category": "kernel",
+      "loc": 18,
+      "complexity": 3,
+      "classes": [
+        "DocumentEventBus"
+      ],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/kernel/ports/DocumentEvents.ts",
+      "category": "kernel",
+      "loc": 7,
+      "complexity": 1,
+      "classes": [],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/kernel/ports/SessionPort.ts",
+      "category": "kernel",
+      "loc": 16,
+      "complexity": 1,
+      "classes": [],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/kernel/ports/SvgDocumentGateway.ts",
+      "category": "kernel",
+      "loc": 6,
+      "complexity": 1,
+      "classes": [],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/kernel/ports/SvgReadResult.ts",
+      "category": "kernel",
+      "loc": 5,
+      "complexity": 1,
+      "classes": [],
+      "role": "内核出站端口与文档事件"
+    },
+    {
+      "path": "src/plugins/builtin-commands/BuiltinCommandPlugin.ts",
+      "category": "plugin",
+      "loc": 83,
+      "complexity": 2,
+      "classes": [
+        "BuiltinCommandPlugin"
+      ],
+      "role": "内置命令 Command 插件"
+    },
+    {
+      "path": "src/plugins/builtin-commands/RegisteredCommand.ts",
+      "category": "plugin",
+      "loc": 16,
+      "complexity": 1,
+      "classes": [
+        "RegisteredCommand"
+      ],
+      "role": "内置命令 Command 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/BuiltinShapesPlugin.ts",
+      "category": "plugin",
+      "loc": 26,
+      "complexity": 1,
+      "classes": [
+        "BuiltinShapesPlugin"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/CircleShapeProvider.ts",
+      "category": "plugin",
+      "loc": 38,
+      "complexity": 4,
+      "classes": [
+        "CircleShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/EllipseShapeProvider.ts",
+      "category": "plugin",
+      "loc": 45,
+      "complexity": 5,
+      "classes": [
+        "EllipseShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/GroupShapeProvider.ts",
+      "category": "plugin",
+      "loc": 22,
+      "complexity": 2,
+      "classes": [
+        "GroupShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/LineShapeProvider.ts",
+      "category": "plugin",
+      "loc": 45,
+      "complexity": 5,
+      "classes": [
+        "LineShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/RectShapeProvider.ts",
+      "category": "plugin",
+      "loc": 45,
+      "complexity": 5,
+      "classes": [
+        "RectShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/builtin-shapes/TextShapeProvider.ts",
+      "category": "plugin",
+      "loc": 37,
+      "complexity": 4,
+      "classes": [
+        "TextShapeProvider"
+      ],
+      "role": "内置图形 ShapeProvider 插件"
+    },
+    {
+      "path": "src/plugins/dir/DirCommand.ts",
+      "category": "plugin",
+      "loc": 41,
+      "complexity": 7,
+      "classes": [
+        "DirCommand"
+      ],
+      "role": "dir 命令插件"
+    },
+    {
+      "path": "src/plugins/dir/DirPlugin.ts",
+      "category": "plugin",
+      "loc": 14,
+      "complexity": 1,
+      "classes": [
+        "DirPlugin"
+      ],
+      "role": "dir 命令插件"
+    },
+    {
+      "path": "src/plugins/dir/index.ts",
+      "category": "plugin",
+      "loc": 3,
+      "complexity": 1,
+      "classes": [],
+      "role": "dir 命令插件"
+    },
+    {
+      "path": "src/plugins/shape-box/BoxAttributeHandler.ts",
+      "category": "plugin",
+      "loc": 30,
+      "complexity": 6,
+      "classes": [
+        "BoxAttributeHandler"
+      ],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/shape-box/BoxPlugin.ts",
+      "category": "plugin",
+      "loc": 22,
+      "complexity": 1,
+      "classes": [
+        "BoxPlugin"
+      ],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/shape-box/BoxShape.ts",
+      "category": "plugin",
+      "loc": 72,
+      "complexity": 3,
+      "classes": [
+        "BoxShape"
+      ],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/shape-box/BoxShapeProvider.ts",
+      "category": "plugin",
+      "loc": 74,
+      "complexity": 14,
+      "classes": [
+        "BoxShapeProvider"
+      ],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/shape-box/BoxTypeDecorator.ts",
+      "category": "plugin",
+      "loc": 7,
+      "complexity": 2,
+      "classes": [
+        "BoxTypeDecorator"
+      ],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/shape-box/index.ts",
+      "category": "plugin",
+      "loc": 3,
+      "complexity": 1,
+      "classes": [],
+      "role": "box 图形、属性与树标签插件"
+    },
+    {
+      "path": "src/plugins/stats/StatsCommand.ts",
+      "category": "plugin",
+      "loc": 38,
+      "complexity": 7,
+      "classes": [
+        "StatsCommand"
+      ],
+      "role": "stats 命令插件"
+    },
+    {
+      "path": "src/plugins/stats/StatsPlugin.ts",
+      "category": "plugin",
+      "loc": 14,
+      "complexity": 1,
+      "classes": [
+        "StatsPlugin"
+      ],
+      "role": "stats 命令插件"
+    },
+    {
+      "path": "src/plugins/stats/index.ts",
+      "category": "plugin",
+      "loc": 3,
+      "complexity": 1,
+      "classes": [],
+      "role": "stats 命令插件"
+    },
+    {
+      "path": "src/plugins/tree-star/ModifiedStarDecorator.ts",
+      "category": "plugin",
+      "loc": 54,
+      "complexity": 7,
+      "classes": [
+        "ModifiedStarDecorator"
+      ],
+      "role": "modified-star 树标签插件"
+    },
+    {
+      "path": "src/plugins/tree-star/TreeStarPlugin.ts",
+      "category": "plugin",
+      "loc": 16,
+      "complexity": 1,
+      "classes": [
+        "TreeStarPlugin"
+      ],
+      "role": "modified-star 树标签插件"
+    },
+    {
+      "path": "src/plugins/tree-star/index.ts",
+      "category": "plugin",
+      "loc": 3,
+      "complexity": 1,
+      "classes": [],
+      "role": "modified-star 树标签插件"
+    },
+    {
+      "path": "src/shared/AttributeDisplay.ts",
+      "category": "kernel",
+      "loc": 11,
+      "complexity": 3,
+      "classes": [
+        "AttributeDisplay"
+      ],
+      "role": "共享格式化与错误"
+    },
+    {
+      "path": "src/shared/NumberFormat.ts",
+      "category": "kernel",
+      "loc": 52,
+      "complexity": 12,
+      "classes": [
+        "NumberFormat"
+      ],
+      "role": "共享格式化与错误"
+    },
+    {
+      "path": "src/shared/UserError.ts",
+      "category": "kernel",
+      "loc": 6,
+      "complexity": 1,
+      "classes": [
+        "UserError"
+      ],
+      "role": "共享格式化与错误"
+    }
+  ]
+}
